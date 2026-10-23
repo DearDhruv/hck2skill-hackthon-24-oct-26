@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE & Editor
+.idea/
+*.iml
+.vscode/
+
+# Gradle & Kotlin Build Artifacts
+.gradle/
+build/
+**/build/
+
+# Local / Sensitive
+local.properties
+*.hprof
+*.log
