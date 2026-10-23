@@ -29,6 +29,7 @@ Dhruv is participating in a **4-hour hackathon** while simultaneously **voluntee
 | **INV-THREAD-01**| Zero Main Thread Blocking | ALL disk I/O, database queries, network requests, and heavy computation MUST run on `Dispatchers.IO` or `Dispatchers.Default`. Compose functions must be pure and free of side-effects. |
 | **INV-NAV-01** | Adaptive Navigation | Use `NavigationSuiteScaffold` (Bottom Navigation on mobile compact <600dp, Navigation Rail on medium 600-840dp, Permanent/Modal Navigation Drawer on expanded >840dp). |
 | **INV-DOCS-01** | Relative Markdown Links | All inter-document links MUST use relative paths with short visible text (`[architecture.md](Docs/architecture.md)`). Never use machine-absolute paths (`/Users/...`). |
+| **INV-SKILL-01**| Installed Skills Utilization | Actively consult and leverage proper installed skills (`~/.gemini/config/skills`, `~/.agents/skills`, `~/.gemini/antigravity/builtin/skills`) for Adaptive UI, Navigation 3, LiteRT AI, Edge-to-Edge, Styles, Testing, and Verification. Never guess APIs when verified skills exist. |
 | **INV-COMMIT-01**| DO NOT COMMIT | AI assistants MUST NOT execute `git commit` or `git push` unless explicitly approved by Dhruv. |
 
 ---
@@ -90,6 +91,25 @@ com.deardhruv.<project_name>/
 3. **Theme & Contrast**:
    - Support both Dark and Light modes out of the box using Material 3 `ColorScheme`.
    - Primary accents: Slate grey, Kotlin violet (`#7F52FF`), Compose blue-green (`#00A88F` / `#4285F4`).
+
+---
+
+## 🧩 Installed Skills Utilization (`INV-SKILL-01`)
+
+The assistant environment is configured with verified, high-leverage skills (`.gemini/config/skills/`, `.agents/skills/`, `.gemini/antigravity/builtin/skills/`). Assistants MUST actively consult these skills before implementing or debugging features:
+
+| Domain | Mandatory Skills to Activate | Applied Focus |
+|---|---|---|
+| **Adaptive Layout & Form Factors** | `adaptive` | Compose MediaQuery API, Foldable/Tablet two-pane scenes, desktop window resizing |
+| **Modern Navigation & Gestures** | `navigation-3`, `navigation-event` | Navigation 3 scenes, multiple backstacks, predictive back `NavigationBackHandler` |
+| **System Insets & Edge-to-Edge** | `edge-to-edge` | Edge-to-edge migration, status/navigation bar legibility, keyboard IME insets |
+| **Design System & Styling** | `styles` | Jetpack Compose Styles API, theme tokens, `Modifier.styleable` |
+| **On-Device AI & LLMs** | `litert-lm`, `litert-runtime`, `ml-kit-genai-prompt-api` | Open LLMs (Gemma, Qwen) with LiteRT-LM, .tflite on CPU/GPU, Gemini Nano Prompt API |
+| **System Shortcuts & Agent Actions**| `appfunctions` | Exposing on-device workflows to Android system & AI agents |
+| **Testing & Verification** | `testing-setup`, `verify`, `anr-audit-and-fix` | Unit/UI/E2E test harnesses, pre-submission verification gate, zero-ANR thread audit |
+| **Performance & R8 Optimization** | `jetpack-compose-performance`, `r8-analyzer` | Eliminating recomposition overhead, frame drop prevention, Proguard rule tuning |
+| **Headless Debugging & Tooling** | `debroid`, `android-cli` | JDWP live debugging, Compose state inspection, emulator orchestration |
+| **Hardware & Cloud Integrations** | `camerax`, `firebase-*` | CameraX video/vision pipeline, Firestore, Firebase Auth, and App Hosting |
 
 ---
 

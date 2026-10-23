@@ -13,6 +13,7 @@ Canonical agent pointer, commands, and rules reference for hackathon pair-progra
 - **INV-THREAD-01**: Zero main thread blocking; all I/O and AI on `Dispatchers.IO`/`Default`.
 - **INV-NAV-01**: Adaptive Navigation with `NavigationSuiteScaffold`.
 - **INV-DOCS-01**: Relative Markdown links only.
+- **INV-SKILL-01**: Installed Skills Utilization — Proactively consult and leverage installed skills (`adaptive`, `navigation-3`, `edge-to-edge`, `litert-lm`, `testing-setup`, `verify`, `styles`, etc.).
 - **INV-COMMIT-01**: DO NOT COMMIT or run git push commands.
 
 ## Built-In Slash Commands
@@ -38,3 +39,4 @@ Canonical agent pointer, commands, and rules reference for hackathon pair-progra
 - [edge-case-defense-matrix.md](rules/edge-case-defense-matrix.md): Mandatory edge-case safeguards.
 - [hackathon-planning-protocol.md](rules/hackathon-planning-protocol.md): Time-boxed roadmap planning.
 - [continuous-learning-protocol.md](rules/continuous-learning-protocol.md): Memory preservation & instinct lifecycle.
+- [installed-skills-usage.md](rules/installed-skills-usage.md): Installed skills catalog & domain execution protocol.

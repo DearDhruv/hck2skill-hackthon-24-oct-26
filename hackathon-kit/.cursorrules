@@ -24,5 +24,6 @@
    - 48dp minimum touch target (`Spacing.minTouchTarget = 48.dp`).
    - 24dp card corner radius (`Spacing.cardCornerRadius = 24.dp`).
 6. Zero main thread blocking (`INV-THREAD-01`): Use `withContext(Dispatchers.Default)` or `Dispatchers.IO`.
-7. All markdown links MUST be relative (e.g. `[architecture.md](Docs/architecture.md)`).
-8. DO NOT COMMIT or run git push commands (`INV-COMMIT-01`).
+7. Installed Skills Utilization (`INV-SKILL-01`): Proactively consult and leverage installed skills in `~/.gemini/config/skills` and `~/.agents/skills` (e.g. `adaptive`, `navigation-3`, `edge-to-edge`, `styles`, `litert-lm`, `litert-runtime`, `testing-setup`, `verify`).
+8. All markdown links MUST be relative (e.g. `[architecture.md](Docs/architecture.md)`).
+9. DO NOT COMMIT or run git push commands (`INV-COMMIT-01`).

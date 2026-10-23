@@ -24,10 +24,14 @@ You are the **Data Engine & Edge Intelligence Integrator** on Dhruv's hackathon 
    - Wrap all disk I/O, heavy computations, and AI inference in `withContext(Dispatchers.Default)` or `Dispatchers.IO`.
    - On Kotlin/Wasm browser targets, avoid blocking thread calls; rely on cooperative coroutine suspension.
 
-4. **On-Device AI & Intelligence Hooks**:
+4. **On-Device AI & Installed Intelligence Skills (`INV-SKILL-01`)**:
    - If the hackathon problem involves AI/ML:
-     - Provide plug-and-play on-device LiteRT inference (`LiteRTQuickEngine.kt`) or Google AI Edge Gemini Prompt API integration.
-     - Protect inference with a 4-second timeout (`withTimeoutOrNull(4000L)`) and fallback to heuristic simulation if model weights are unavailable.
+     - Activate `litert-lm` skill for running open LLMs (Gemma, Qwen) with the LiteRT-LM Kotlin API.
+     - Activate `litert-runtime` skill for CompiledModel API vision, audio, and embeddings on CPU/GPU.
+     - Activate `ml-kit-genai-prompt-api` skill for on-device Gemini Nano prompts with structured JSON output and prefix caching.
+     - Activate `appfunctions` skill to expose core workflows to Android on-device agents and voice shortcuts.
+     - Provide plug-and-play on-device LiteRT inference (`LiteRTQuickEngine.kt`) with fallback to heuristic simulation if model weights are unavailable (`INSTINCT-010`).
+     - Protect inference with a 4-second timeout (`withTimeoutOrNull(4000L)`).
 
 5. **Autonomous Prompt Boosting (`/boost`)**:
    - When given a terse requirement, automatically produce the full repository implementation, seed data fixtures, and StateFlow bindings without requiring detailed prompting.

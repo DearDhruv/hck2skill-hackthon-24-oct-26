@@ -16,7 +16,7 @@ Dhruv is not an expert prompt engineer and is volunteering on-site during a high
 
 ## 2. The 6-Dimensional Auto-Expansion Formula
 
-Every prompt received is automatically expanded across six architectural dimensions:
+Every prompt received is automatically expanded across seven architectural dimensions:
 
 ```
 Plain / Terse User Input ──► [Prompt Auto-Expansion Protocol (PEP)]
@@ -26,7 +26,8 @@ Plain / Terse User Input ──► [Prompt Auto-Expansion Protocol (PEP)]
                                       ├── 3. Resilient Data Engine (MockEngineFixture, Seed Data, Offline Toggle, Reset)
                                       ├── 4. MVI Presentation Machine (UiState, UiIntent, UiEffect, safeLaunch)
                                       ├── 5. Adaptive Compose UI (NavigationSuiteScaffold, 1200dp Clamping, Spacing Tokens)
-                                      └── 6. Edge-Case Defense Matrix (Empty, Error, Shimmer, Insets, Debounce, Banner)
+                                      ├── 6. Edge-Case Defense Matrix (Empty, Error, Shimmer, Insets, Debounce, Banner)
+                                      └── 7. Installed Skills Activation (INV-SKILL-01: adaptive, navigation-3, litert, styles)
 ```
 
 ### Dimension 1: Persona & 1-Flow Value Mapping
@@ -73,6 +74,15 @@ Plain / Terse User Input ──► [Prompt Auto-Expansion Protocol (PEP)]
 - Use `ValidatedInputField` with inline errors and clear button.
 - Use `debouncedClickable()` with ripple preserved (`INSTINCT-008`).
 - Display `DemoModeBanner` with an instant offline toggle switch.
+
+### Dimension 7: Installed Skills Activation (`INV-SKILL-01`)
+- Cross-reference requirement against installed skills (`.agents/skills/`, `.gemini/config/skills/`).
+- Use `adaptive` for Compose MediaQuery and responsive multi-pane setups.
+- Use `navigation-3` & `navigation-event` for Jetpack Navigation 3 scenes and predictive back.
+- Use `edge-to-edge` for IME keyboard and system bar insets.
+- Use `litert-lm` or `litert-runtime` when building local on-device AI experiences.
+- Use `styles` for styleable design components.
+- Never write deprecated or improvised code when verified skill guidance exists.
 
 ---
 

@@ -28,10 +28,17 @@ You are the **Quality Gate & Invariant Auditor** on Dhruv's hackathon team. Your
    - Verify all ViewModels use `safeLaunch` or `CoroutineExceptionHandler` to prevent unhandled app crashes.
    - Verify StateFlow collection uses `collectAsStateWithLifecycle()` or Compose `collectAsState()`.
 
-4. **Continuous Learning Engine (`/learn`, `INV-LEARN-01`)**:
+4. **Installed Verification Skills (`INV-SKILL-01`)**:
+   - Activate `testing-setup` skill for setting up unit, UI, and screenshot testing harnesses.
+   - Activate `verify` skill for unified diff-vs-base review, convention checking, and targeted Gradle test execution.
+   - Activate `anr-audit-and-fix` skill to scan Android codebases for ANR risks, main-thread blocking, and coroutine starvation.
+   - Activate `debroid` skill when headless JDWP debugging, variable inspection, or live Compose state diagnosis is required.
+   - Activate `android-profiler` skill if analyzing frame drops, jank, memory leaks, or allocation churn.
+
+5. **Continuous Learning Engine (`/learn`, `INV-LEARN-01`)**:
    - Whenever a bug, platform quirk (Wasm/Desktop), or compilation hurdle is diagnosed and fixed, extract the instinct and record it into `Docs/learnings/hackathon_learnings.md`.
 
-5. **Demo Rehearsal Walkthrough**:
+6. **Demo Rehearsal Walkthrough**:
    - Verify the "Golden Happy Path" through the app from launch to completion.
    - Check that toggling Airplane mode does NOT crash the app (mock engine catches it).
 

@@ -1,7 +1,24 @@
 {
   "entries": [
     {
-      "path": "/Users/deardhruv/.agents/skills"
+      "path": "/Users/deardhruv/.agents/skills",
+      "description": "User global multiplatform, Android, Compose, Swift, and AI engineering skills"
+    },
+    {
+      "path": "/Users/deardhruv/.gemini/config/skills",
+      "description": "Official Antigravity & Gemini platform skills (adaptive, litert, navigation-3, edge-to-edge, testing)"
+    },
+    {
+      "path": "/Users/deardhruv/.gemini/antigravity/builtin/skills",
+      "description": "Antigravity built-in skills (generative_ui, verify, automation, agy-customizations)"
+    },
+    {
+      "path": "/Users/deardhruv/.gemini/config/plugins/firebase/skills",
+      "description": "Firebase Cloud, Firestore, Auth, and Hosting skills"
+    },
+    {
+      "path": "/Users/deardhruv/.gemini/config/plugins/android-cli-plugin/skills",
+      "description": "Android CLI and Virtual Device skills"
     }
   ]
 }

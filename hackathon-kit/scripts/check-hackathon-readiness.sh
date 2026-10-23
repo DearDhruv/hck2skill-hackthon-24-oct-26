@@ -51,6 +51,7 @@ check_file "$ROOT_DIR/.agents/rules/prompt-expansion-protocol.md" "Prompt Auto-E
 check_file "$ROOT_DIR/.agents/rules/edge-case-defense-matrix.md" "Edge-Case Defense Matrix Rule"
 check_file "$ROOT_DIR/.agents/rules/hackathon-planning-protocol.md" "Hackathon Planning Rule"
 check_file "$ROOT_DIR/.agents/rules/continuous-learning-protocol.md" "Continuous Learning Rule"
+check_file "$ROOT_DIR/.agents/rules/installed-skills-usage.md" "Installed Skills Usage Rule"
 
 echo "--- 4. Documentation & Learnings Templates ---"
 check_file "$ROOT_DIR/Docs/problem_assessment_worksheet.md" "Problem Assessment Worksheet"

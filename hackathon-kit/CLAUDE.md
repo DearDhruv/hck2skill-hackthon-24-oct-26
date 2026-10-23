@@ -27,4 +27,5 @@ Follow all architectural, velocity, and design rules defined in [AGENTS.md](AGEN
 7. **Clean Architecture**: Pure Kotlin domain, MVI StateFlow presentation, Compose Multiplatform UI.
 8. **Capsule Styling (`INV-UI-01`)**: Use `Spacing.kt` tokens (`minTouchTarget = 48.dp`, `buttonCornerRadius = 100.dp` / `CircleShape`).
 9. **Zero Main-Thread Blocking**: All I/O, heavy calculations, and AI inference on `Dispatchers.IO` / `Dispatchers.Default`.
-10. **DO NOT COMMIT**: Do not run `git commit` or `git push`.
+10: **Installed Skills (`INV-SKILL-01`)**: Proactively consult and leverage installed skills (`adaptive`, `navigation-3`, `navigation-event`, `edge-to-edge`, `styles`, `litert-lm`, `litert-runtime`, `ml-kit-genai-prompt-api`, `testing-setup`, `verify`, `jetpack-compose-performance`) rather than guessing APIs.
+11. **DO NOT COMMIT**: Do not run `git commit` or `git push`.
