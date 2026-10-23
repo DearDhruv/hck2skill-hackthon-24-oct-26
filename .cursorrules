@@ -1,0 +1,30 @@
+# Cursor Rules: Hack2Skill Hackathon System
+ 
+1. Always refer to [AGENTS.md](AGENTS.md) and [hackathon-kit/.agents/rules/](hackathon-kit/.agents/rules/) for project invariants and architecture.
+2. Built-in Commands & Auto-Expansion:
+   - Plain English Instructions: Any instruction (with or without `/boost`) is automatically deconstructed and expanded via PEP (`INV-BOOST-01`).
+   - `/boost [instruction]`: Explicitly expands prompts into complete Clean Architecture code with full edge cases.
+   - `/plan [concept]`: Breaks down problem statements into a time-budgeted 4-hour execution roadmap with volunteer handoff mode.
+   - `/learn [lesson]`: Captures debugging and platform insights into `hackathon-kit/Docs/learnings/hackathon_learnings.md` (`INV-LEARN-01`).
+3. Maintain strict Clean Architecture (`INV-ARCH-01`):
+   - `domain`: Pure Kotlin, zero Android or Compose UI imports.
+   - `data`: Repositories with offline mock fallback engine (`INV-MOCK-01`) and `resetToSeedData()`.
+   - `presentation`: MVI / UDF with StateFlow (`UiState`, `UiIntent`, `UiEffect`) extending `BaseMviViewModel` with `safeLaunch`.
+   - `ui`: Compose Multiplatform with adaptive navigation (`NavigationSuiteScaffold`).
+4. Edge-Case Defense Matrix (`INV-EDGE-01`):
+   - Implement `EmptyStateCard`, `ErrorStateCard` (with retry), and `LoadingSkeletonCard`.
+   - Dynamic text must use `maxLines` and `overflow = TextOverflow.Ellipsis`.
+   - Soft keyboard avoidance with `AdaptiveFormLayout` (`imePadding()` and vertical scrolling).
+   - Validated inputs using `ValidatedInputField` with inline errors and clear button.
+   - Prevent double-click spam using `debouncedClickable()` with ripple preserved.
+   - Demo transparency using `DemoModeBanner` with offline mock toggle.
+   - Clamp widescreen desktop layouts using `AdaptiveContainer(maxWidth = 1200.dp)`.
+5. Follow Dhruv's Design Tokens (`INV-UI-01`):
+   - Capsule shape buttons (`CircleShape` / `Spacing.buttonCornerRadius = 100.dp`).
+   - 48dp minimum touch target (`Spacing.minTouchTarget = 48.dp`).
+   - 24dp card corner radius (`Spacing.cardCornerRadius = 24.dp`).
+6. Zero main thread blocking (`INV-THREAD-01`): Use `withContext(Dispatchers.Default)` or `Dispatchers.IO`.
+7. Installed Skills Utilization (`INV-SKILL-01`): Proactively consult and leverage installed skills in `~/.gemini/config/skills` and `~/.agents/skills` (e.g. `adaptive`, `navigation-3`, `edge-to-edge`, `styles`, `litert-lm`, `litert-runtime`, `testing-setup`, `verify`).
+8. Continuous Documentation & Structure Sync (`INV-DOCS-SYNC-01`): Upon completing tasks or features, automatically update `README.md` and related technical docs with newly added components, directory structure changes, and direct relative links to the relevant code files.
+9. All markdown links MUST be relative (e.g. `[architecture.md](hackathon-kit/Docs/architecture_template.md)`).
+10. DO NOT COMMIT or run git push commands (`INV-COMMIT-01`) unless explicitly approved.

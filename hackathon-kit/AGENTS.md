@@ -30,6 +30,7 @@ Dhruv is participating in a **4-hour hackathon** while simultaneously **voluntee
 | **INV-NAV-01** | Adaptive Navigation | Use `NavigationSuiteScaffold` (Bottom Navigation on mobile compact <600dp, Navigation Rail on medium 600-840dp, Permanent/Modal Navigation Drawer on expanded >840dp). |
 | **INV-DOCS-01** | Relative Markdown Links | All inter-document links MUST use relative paths with short visible text (`[architecture.md](Docs/architecture.md)`). Never use machine-absolute paths (`/Users/...`). |
 | **INV-SKILL-01**| Installed Skills Utilization | Actively consult and leverage proper installed skills (`~/.gemini/config/skills`, `~/.agents/skills`, `~/.gemini/antigravity/builtin/skills`) for Adaptive UI, Navigation 3, LiteRT AI, Edge-to-Edge, Styles, Testing, and Verification. Never guess APIs when verified skills exist. |
+| **INV-DOCS-SYNC-01**| Continuous Docs & Structure Sync | Upon completing any task or feature, automatically update `README.md` and related technical docs with newly added components, directory structure changes, and direct relative links to the relevant code files. |
 | **INV-COMMIT-01**| DO NOT COMMIT | AI assistants MUST NOT execute `git commit` or `git push` unless explicitly approved by Dhruv. |
 
 ---

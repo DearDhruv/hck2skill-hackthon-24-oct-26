@@ -40,6 +40,9 @@ cp -R "$KIT_ROOT/.agents/"* "$TARGET_DIR/.agents/"
 cp "$KIT_ROOT/AGENTS.md" "$TARGET_DIR/AGENTS.md"
 cp "$KIT_ROOT/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
 cp "$KIT_ROOT/.cursorrules" "$TARGET_DIR/.cursorrules"
+if [[ ! -f "$TARGET_DIR/README.md" ]]; then
+    cp "$KIT_ROOT/README.md" "$TARGET_DIR/README.md"
+fi
 
 # 2. Copy Documentation Templates & Learnings Registry
 echo "📄 Injecting Hack2Skill Documentation Templates & Learnings Registry..."

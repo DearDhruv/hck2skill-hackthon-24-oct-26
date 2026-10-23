@@ -74,6 +74,18 @@ Whenever you or the autonomous agents build, optimize, or test features, the sys
 
 ---
 
+## 🔄 Continuous Documentation & Structure Sync Protocol (`INV-DOCS-SYNC-01`)
+
+**Rule**: Code and documentation must never drift apart. Whenever any feature, refactor, or blueprint is completed:
+1. **Update Technical Specs**: Document new libraries, ViewModels, or integrations in [README.md](README.md) and [../README.md](../README.md).
+2. **Synchronize Directory Structure**: Update the file trees to reflect newly added or reorganized files.
+3. **Add Direct Code Links**: Add relative clickable links to all newly created Kotlin classes, ViewModels, Composables, or scripts.
+4. **Capture Learnings**: If a platform issue (Wasm, Desktop, Compose) was solved, log the instinct into [Docs/learnings/hackathon_learnings.md](Docs/learnings/hackathon_learnings.md).
+
+Detailed protocol: [.agents/rules/docs-sync-protocol.md](.agents/rules/docs-sync-protocol.md).
+
+---
+
 ## 🚀 Quick Start: 30-Second Initialization
 
 When the hackathon problem statement is announced:
@@ -208,7 +220,9 @@ hackathon-kit/
 │   │   ├── prompt-expansion-protocol.md # Self-enhancing prompt formula
 │   │   ├── edge-case-defense-matrix.md # Mandatory edge-case safeguards
 │   │   ├── hackathon-planning-protocol.md # 4-hour sprint roadmap planning
-│   │   └── continuous-learning-protocol.md # Memory preservation & instinct lifecycle
+│   │   ├── continuous-learning-protocol.md # Memory preservation & instinct lifecycle
+│   │   ├── installed-skills-usage.md  # Installed skills utilization rules (INV-SKILL-01)
+│   │   └── docs-sync-protocol.md      # Continuous docs & structure sync (INV-DOCS-SYNC-01)
 │   └── agents/
 │       ├── architect-scaffolder.md    # Agent Persona: Lead Architect
 │       ├── cmp-ui-designer.md         # Agent Persona: Compose UI Specialist

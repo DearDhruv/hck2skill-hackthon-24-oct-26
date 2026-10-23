@@ -52,6 +52,7 @@ check_file "$ROOT_DIR/.agents/rules/edge-case-defense-matrix.md" "Edge-Case Defe
 check_file "$ROOT_DIR/.agents/rules/hackathon-planning-protocol.md" "Hackathon Planning Rule"
 check_file "$ROOT_DIR/.agents/rules/continuous-learning-protocol.md" "Continuous Learning Rule"
 check_file "$ROOT_DIR/.agents/rules/installed-skills-usage.md" "Installed Skills Usage Rule"
+check_file "$ROOT_DIR/.agents/rules/docs-sync-protocol.md" "Documentation Sync Protocol Rule"
 
 echo "--- 4. Documentation & Learnings Templates ---"
 check_file "$ROOT_DIR/Docs/problem_assessment_worksheet.md" "Problem Assessment Worksheet"
