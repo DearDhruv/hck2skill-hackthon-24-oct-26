@@ -138,3 +138,34 @@ This file records continuous learnings, platform anomalies (Kotlin/Wasm, Compose
   2. Gate dynamic bounding boxes strictly to matching hazard types: `bbox = dynamic_bbox if (dynamic_bbox and has_real_image and matched_issue == "pothole") else pattern["boundingBox"]`.
   3. Disambiguate dark road asphalt from streetlights: check achromatic saturation (`mean_s < 45 and channel_diff < 25`) and fracture edges before declaring an unlit streetlight corridor.
 - **Agents Impacted**: `vision-engineer`, `quality-verifier`, `agent-engine-developer`
+
+---
+
+### [INSTINCT-013] Controlled Fault Injection & Chaos Testing for Demo Resilience
+- **Date / Phase**: Civic Complaint Agent / Chaos & Fault Injection Hardening
+- **Trigger**: Demonstrating system error handling, network timeouts, or server failure handling live to hackathon judges.
+- **The Trap**: Attempting live failures by disabling Wi-Fi, pulling plugs, or editing source code during a 2-minute pitch frequently causes fatal crashes, unrecoverable state, or terminal panics on stage.
+- **The Defensive Pattern**:
+  1. Build a dedicated, toggleable `ChaosService` with a thread-safe `threading.RLock()` managing defined failure profiles (500 Database Crash, Network Timeout >5s, 429 Rate Limit, Corrupted Non-JSON Payload, GIS Ward Boundary Conflict, Corrupted Image Buffer).
+  2. Implement a non-destructive `ErrorStateCard` in the UI that displays rich diagnostic context (subsystem, timestamp, HTTP code) while preserving 100% of the citizen's form input.
+  3. Include an instantaneous "Disable Chaos & Self-Heal" recovery button that disables chaos mode and automatically re-executes the pipeline without manual form re-entry or page refresh.
+- **Agents Impacted**: `architect-scaffolder`, `engine-data-integrator`, `cmp-ui-designer`, `quality-verifier`
+
+---
+
+### [INSTINCT-014] Human-Centered Civic Palette & Actionable Authority Contact Affordances
+- **Date / Phase**: Civic Complaint Agent / UX Humanization & Authority Escalation
+- **Trigger**: Presenting public municipal services to citizens and judges who find high-contrast "neon AI cyberpunk" themes fatiguing or impersonal.
+- **The Trap**: Styling public civic tools with developer/crypto tropes (pitch-black canvas, radioactive neon greens, terminal scanlines) induces visual eye strain and creates a sense of robotic detachment. Citizens feel their grievances are lost in an algorithmic black hole with no human municipal accountability.
+- **The Defensive Pattern**:
+  1. **Calming Civic Color System**: Transition from pitch black to soft warm parchment canvas (`#f8faf9`) and deep forest teal (`#0f766e`, `#14b8a6`) with warm slate typography (`#1e293b`). Provide an eye-comfort night mode (`#121816` warm moss slate) that avoids harsh blue-light glare.
+  2. **Capsule Styling & Touch Ergonomics (`INV-UI-01`)**: All interactive elements use capsule curves (`rounded-full`) with minimum 48px touch targets (`min-h-[48px]`), ensuring effortless single-thumb access on mobile devices.
+  3. **Multi-Channel Authority Affordances**: Pair AI triage with immediate human accountability on both complaint creation and status inspection:
+     - Direct clickable Ward Officer phone (`tel:+91...`).
+     - AMC 24x7 Emergency Helpline (`155303` / Toll-Free `1800-233-2330`).
+     - Physical Ward Office address with 1-click Google Maps navigation.
+     - Pre-populated WhatsApp Grievance Desk chat link.
+     - Executive Engineer escalation contacts (hotline & email).
+  4. **Gentle Micro-Interactions**: Replace jarring browser `alert()` popups with soft sliding toast notifications.
+- **Agents Impacted**: `cmp-ui-designer`, `architect-scaffolder`, `quality-verifier`
+

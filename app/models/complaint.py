@@ -59,6 +59,15 @@ class Complaint(BaseModel):
     filedAt: str
     expectedSlaAt: Optional[str] = None
     assignedTo: Optional[str] = None
+    wardOfficer: Optional[str] = None
+    wardContactPhone: Optional[str] = None
+    wardOfficeAddress: Optional[str] = None
+    leadEngineer: Optional[str] = None
+    departmentHotline: Optional[str] = None
+    departmentEmail: Optional[str] = None
+    amcHelpline: Optional[str] = "155303"
+    tollFreeHelpline: Optional[str] = "1800-233-2330"
+    whatsappGrievance: Optional[str] = "+91-99783-22880"
     timeline: List[TimelineEvent] = Field(default_factory=list)
     resolvedAt: Optional[str] = None
     citizenFeedback: Optional[str] = None

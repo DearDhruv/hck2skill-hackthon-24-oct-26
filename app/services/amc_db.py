@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from typing import List, Optional, Dict, Any
 from app.models.complaint import Complaint, Ward, IssueType, ComplaintStatus, TimelineEvent, DepartmentInfo
+from app.services.chaos_service import ChaosService, FaultType
 
 class AMCDatabaseService:
     """
@@ -157,6 +158,11 @@ class AMCDatabaseService:
         """
         if not query:
             return None
+
+        chaos = ChaosService.get_instance()
+        if chaos.enabled and chaos.active_fault == FaultType.JURISDICTION_UNRESOLVED:
+            chaos.check_and_raise(subsystem="amc_gis_boundary_resolver", context={"query": query})
+
         cleaned_query = query.strip().lower()
         wards = self.get_wards()
 
@@ -227,6 +233,10 @@ class AMCDatabaseService:
         lng: Optional[float] = None
     ) -> Complaint:
         with self._lock:
+            chaos = ChaosService.get_instance()
+            if chaos.enabled and chaos.active_fault in (FaultType.INTERNAL_ERROR_500, FaultType.JURISDICTION_UNRESOLVED):
+                chaos.check_and_raise(subsystem="amc_database_pool", context={"action": "create_complaint"})
+
             data = self._read_data()
             complaints = data.get("complaints", [])
 
@@ -251,6 +261,8 @@ class AMCDatabaseService:
             dept_meta = self.get_department_metadata(department_name)
             sla_hours = dept_meta.slaHours if dept_meta else 24
             lead_engineer = dept_meta.leadEngineer if dept_meta else "AMC Field Officer"
+            dept_hotline = dept_meta.hotline if dept_meta else "+91-79-2755-1234"
+            dept_email = dept_meta.escalationEmail if dept_meta else "grievance@ahmedabadcity.gov.in"
 
             # Generate unique tracking ID: AMC-2026-XXXXXX
             now = datetime.now()
@@ -285,6 +297,15 @@ class AMCDatabaseService:
                 filedAt=timestamp_str,
                 expectedSlaAt=expected_sla,
                 assignedTo=f"{lead_engineer} ({ward.name} Ward Cell)",
+                wardOfficer=ward.wardOfficer or "Shri Arvind Trivedi",
+                wardContactPhone=ward.contactPhone or "+91-79-2755-1201",
+                wardOfficeAddress=ward.officeAddress or f"AMC {ward.name} Ward Office, {ward.zone} Zone, Ahmedabad",
+                leadEngineer=lead_engineer,
+                departmentHotline=dept_hotline,
+                departmentEmail=dept_email,
+                amcHelpline="155303",
+                tollFreeHelpline="1800-233-2330",
+                whatsappGrievance="+91-99783-22880",
                 timeline=[
                     TimelineEvent(
                         status=ComplaintStatus.SUBMITTED,
@@ -304,12 +325,47 @@ class AMCDatabaseService:
             self._write_data(data)
             return new_complaint
 
+    def _enrich_complaint_dict(self, c_dict: Dict[str, Any]) -> Dict[str, Any]:
+        """Ensures all complaints (including legacy/seed) have complete authority contact affordances."""
+        c = dict(c_dict)
+        ward_id = c.get("ward")
+        ward_obj = None
+        for w in self.get_wards():
+            if w.id == ward_id or w.name.lower() == (c.get("wardName") or "").lower():
+                ward_obj = w
+                break
+
+        dept_meta = self.get_department_metadata(c.get("department", ""))
+
+        if not c.get("wardOfficer") and ward_obj:
+            c["wardOfficer"] = ward_obj.wardOfficer
+        if not c.get("wardContactPhone") and ward_obj:
+            c["wardContactPhone"] = ward_obj.contactPhone
+        if not c.get("wardOfficeAddress") and ward_obj:
+            c["wardOfficeAddress"] = ward_obj.officeAddress
+
+        if not c.get("leadEngineer") and dept_meta:
+            c["leadEngineer"] = dept_meta.leadEngineer
+        if not c.get("departmentHotline") and dept_meta:
+            c["departmentHotline"] = dept_meta.hotline
+        if not c.get("departmentEmail") and dept_meta:
+            c["departmentEmail"] = dept_meta.escalationEmail
+
+        c.setdefault("amcHelpline", "155303")
+        c.setdefault("tollFreeHelpline", "1800-233-2330")
+        c.setdefault("whatsappGrievance", "+91-99783-22880")
+        return c
+
     def get_complaint_by_id(self, tracking_id: str) -> Optional[Complaint]:
+        chaos = ChaosService.get_instance()
+        if chaos.enabled and chaos.active_fault == FaultType.INTERNAL_ERROR_500:
+            chaos.check_and_raise(subsystem="amc_database_pool", context={"action": "get_complaint_by_id", "id": tracking_id})
+
         data = self._read_data()
         cleaned_id = tracking_id.strip().upper()
         for c in data.get("complaints", []):
             if c.get("trackingId", "").upper() == cleaned_id:
-                return Complaint(**c)
+                return Complaint(**self._enrich_complaint_dict(c))
         return None
 
     def advance_complaint_status(self, tracking_id: str) -> Optional[Complaint]:
@@ -318,6 +374,10 @@ class AMCDatabaseService:
         Transitions: Assigned -> In Progress -> Work Verified -> Resolved
         """
         with self._lock:
+            chaos = ChaosService.get_instance()
+            if chaos.enabled and chaos.active_fault == FaultType.INTERNAL_ERROR_500:
+                chaos.check_and_raise(subsystem="amc_database_pool", context={"action": "advance_complaint_status", "id": tracking_id})
+
             data = self._read_data()
             complaints = data.get("complaints", [])
             cleaned_id = tracking_id.strip().upper()
@@ -340,7 +400,7 @@ class AMCDatabaseService:
                         note = "Quality audit passed. Issue officially resolved and closed."
                         c["resolvedAt"] = now_str
                     else:
-                        return Complaint(**c)
+                        return Complaint(**self._enrich_complaint_dict(c))
 
                     c["status"] = next_status
                     timeline = c.get("timeline", [])
@@ -351,10 +411,14 @@ class AMCDatabaseService:
                     })
                     c["timeline"] = timeline
                     self._write_data(data)
-                    return Complaint(**c)
+                    return Complaint(**self._enrich_complaint_dict(c))
 
             return None
 
     def list_complaints(self, limit: int = 50) -> List[Complaint]:
+        chaos = ChaosService.get_instance()
+        if chaos.enabled and chaos.active_fault == FaultType.INTERNAL_ERROR_500:
+            chaos.check_and_raise(subsystem="amc_database_pool", context={"action": "list_complaints"})
+
         data = self._read_data()
-        return [Complaint(**c) for c in data.get("complaints", [])[:limit]]
+        return [Complaint(**self._enrich_complaint_dict(c)) for c in data.get("complaints", [])[:limit]]

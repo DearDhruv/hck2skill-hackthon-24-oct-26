@@ -132,3 +132,60 @@ def test_api_concurrent_filings(client):
     assert len(tracking_ids) == 4
     # All IDs must be unique
     assert len(set(tracking_ids)) == 4
+
+
+def test_api_authority_contact_affordances(client):
+    """
+    Verifies that municipal complaint responses supply complete, actionable authority contact affordances:
+    - Ward officer name & direct contact phone (tel:)
+    - Physical ward office address
+    - AMC 24x7 Helpline (155303) & Toll-Free (1800-233-2330)
+    - WhatsApp Grievance Desk
+    - Department Lead Engineer & escalation hotline/email
+    """
+    # 1. Test via filing
+    payload = {
+        "sampleName": "pothole_cg_road.jpg",
+        "area": "CG Road",
+        "notes": "Testing authority contact links"
+    }
+    file_res = client.post("/api/complaints/file", data=payload)
+    assert file_res.status_code == 200
+    c_filed = file_res.json()["complaint"]
+    assert c_filed["ward"] == "W12"
+    assert c_filed["wardOfficer"] == "Shri Arvind Trivedi"
+    assert c_filed["wardContactPhone"] == "+91-79-2755-1201"
+    assert "Usmanpura" in c_filed["wardOfficeAddress"]
+    assert c_filed["leadEngineer"] == "Er. Rajesh Dave"
+    assert c_filed["departmentHotline"] == "+91-79-2755-1234"
+    assert c_filed["amcHelpline"] == "155303"
+    assert c_filed["tollFreeHelpline"] == "1800-233-2330"
+    assert c_filed["whatsappGrievance"] == "+91-99783-22880"
+
+    # 2. Test via status query
+    tid = c_filed["trackingId"]
+    query_res = client.post("/api/agent/query", json={"query": f"what's the status of {tid}?"})
+    assert query_res.status_code == 200
+    q_data = query_res.json()
+    assert q_data["complaint"]["wardOfficer"] == "Shri Arvind Trivedi"
+    assert "155303" in q_data["message"]
+    assert "Shri Arvind Trivedi" in q_data["message"]
+
+    # 3. Test via GET single complaint
+    get_res = client.get(f"/api/complaints/{tid}")
+    assert get_res.status_code == 200
+    c_get = get_res.json()
+    assert c_get["wardOfficer"] == "Shri Arvind Trivedi"
+    assert c_get["wardContactPhone"] == "+91-79-2755-1201"
+
+    # 4. Test seed complaint (W27 - Maninagar)
+    seed_res = client.get("/api/complaints/AMC-2026-000124")
+    assert seed_res.status_code == 200
+    c_seed = seed_res.json()
+    assert c_seed["ward"] == "W27"
+    assert c_seed["wardOfficer"] == "Smt. Bhavna Solanki"
+    assert c_seed["wardContactPhone"] == "+91-79-2546-4301"
+    assert "Rambaug" in c_seed["wardOfficeAddress"]
+    assert c_seed["leadEngineer"] == "Er. Minaxi Patel"
+    assert c_seed["departmentHotline"] == "+91-79-2755-5678"
+

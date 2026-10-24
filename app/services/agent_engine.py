@@ -9,6 +9,7 @@ from app.services.amc_db import AMCDatabaseService
 from app.services.vision_service import VisionAnalysisService
 from app.services.social_service import SocialEscalationService
 from app.services.video_scanner import VideoPotholeScannerService
+from app.services.chaos_service import ChaosService, FaultType
 
 class CivicComplaintAgent:
     """
@@ -62,6 +63,20 @@ class CivicComplaintAgent:
         tools_invoked: List[str] = []
         step_idx = 1
 
+        # Check chaos fault injection
+        chaos = ChaosService.get_instance()
+        if chaos.enabled:
+            if chaos.active_fault == FaultType.CORRUPTED_IMAGE_UPLOAD:
+                chaos.check_and_raise(subsystem="vision_preprocessor", context={"filename": filename})
+            elif chaos.active_fault == FaultType.NETWORK_TIMEOUT:
+                chaos.check_and_raise(subsystem="amc_gateway_proxy", context={"step": "ingress"})
+            elif chaos.active_fault == FaultType.RATE_LIMIT_429:
+                chaos.check_and_raise(subsystem="amc_api_ratelimiter", context={"step": "ingress"})
+            elif chaos.active_fault == FaultType.CORRUPTED_PAYLOAD:
+                chaos.check_and_raise(subsystem="amc_legacy_serializer", context={"step": "serialize"})
+            elif chaos.active_fault == FaultType.INTERNAL_ERROR_500:
+                chaos.check_and_raise(subsystem="amc_database_pool", context={"step": "ingress"})
+
         # Phase 1: Observation
         reasoning_trace.append(ReasoningStep(
             stepIndex=step_idx,
@@ -108,6 +123,9 @@ class CivicComplaintAgent:
         # Step 2: Tool Call -> lookup_ward_and_department
         # Priority: If user provided a valid area, use it. Otherwise, use photo GPS coordinates.
         clean_user_area = (user_area or "").strip()
+        if chaos.enabled and chaos.active_fault == FaultType.JURISDICTION_UNRESOLVED:
+            chaos.check_and_raise(subsystem="amc_gis_boundary_resolver", context={"area": clean_user_area})
+
         matched_ward = None
         resolved_via = "default"
 
@@ -276,7 +294,9 @@ class CivicComplaintAgent:
             f"• Ward: {complaint.ward} - {complaint.wardName} ({complaint.zone} Zone)\n"
             f"• Department: {complaint.department}\n"
             f"• SLA Target: Within {lookup_output['slaHours']} hours (Expected by: {complaint.expectedSlaAt[:16].replace('T', ' ')})\n"
-            f"• Field In-Charge: {complaint.assignedTo}\n\n"
+            f"• Field In-Charge: {complaint.assignedTo}\n"
+            f"• Ward Officer: {complaint.wardOfficer or matched_ward.wardOfficer} ({complaint.wardContactPhone or matched_ward.contactPhone})\n"
+            f"• AMC 24x7 Helpline: 155303 | Toll-Free: 1800-233-2330 | WhatsApp: +91-99783-22880\n\n"
             f"You can query 'what\\'s the status of {complaint.trackingId}?' at any time to receive real-time updates."
         )
 
@@ -340,6 +360,15 @@ class CivicComplaintAgent:
         - "check status of AMC-2026-000123"
         - "AMC-2026-000123"
         """
+        chaos = ChaosService.get_instance()
+        if chaos.enabled and chaos.active_fault in (
+            FaultType.INTERNAL_ERROR_500,
+            FaultType.NETWORK_TIMEOUT,
+            FaultType.RATE_LIMIT_429,
+            FaultType.CORRUPTED_PAYLOAD
+        ):
+            chaos.check_and_raise(subsystem="agent_query_engine", context={"query": query})
+
         reasoning_trace: List[ReasoningStep] = []
         tools_invoked: List[str] = []
         step_idx = 1
@@ -436,6 +465,8 @@ class CivicComplaintAgent:
             f"• **Jurisdiction**: Ward {complaint.ward} ({complaint.wardName}), {complaint.zone} Zone\n"
             f"• **Department**: {complaint.department}\n"
             f"• **Assigned Officer**: {complaint.assignedTo}\n"
+            f"• **Ward Officer**: {complaint.wardOfficer or 'AMC Ward Officer'} ({complaint.wardContactPhone or '+91-79-2539-1811'})\n"
+            f"• **AMC 24x7 Helpline**: 155303 | Toll-Free: 1800-233-2330 | WhatsApp: +91-99783-22880\n"
             f"• **SLA Deadline**: {complaint.expectedSlaAt[:16].replace('T', ' ') if complaint.expectedSlaAt else 'Standard 24h'}\n\n"
             f"🕒 **Lifecycle History**:\n{timeline_str}"
         )

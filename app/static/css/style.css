@@ -1,47 +1,109 @@
-/* Custom Scrollbars */
+/* Soothing, Eye-Friendly Civic Care Theme */
+
+/* Custom Smooth Scrollbars */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #090d16;
+    background: #f1f5f3;
+}
+.dark ::-webkit-scrollbar-track {
+    background: #121816;
 }
 ::-webkit-scrollbar-thumb {
-    background: #1e293b;
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #2a3833;
     border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
+    background: #94a3b8;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #3f524b;
 }
 
-/* Tab active state */
+/* Nav Tab Active State */
 .nav-tab.active {
-    background-color: #1e293b;
+    background-color: #0f766e;
     color: #ffffff;
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 8px -1px rgba(15, 118, 110, 0.25);
+}
+.dark .nav-tab.active {
+    background-color: #14b8a6;
+    color: #042f2e;
+    box-shadow: 0 2px 8px -1px rgba(20, 184, 166, 0.25);
 }
 
-/* Glowing accent effects */
-.glow-emerald {
-    box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+/* Soothing Elevations & Soft Borders */
+.card-soothing {
+    background: #ffffff;
+    border: 1px solid #e4eae6;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+}
+.dark .card-soothing {
+    background: #1a221f;
+    border: 1px solid #2a3833;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
 }
 
-/* Pulsing thinking node */
-@keyframes pulse-ring {
-    0% {
-        transform: scale(0.95);
-        opacity: 0.8;
+/* Capsule Buttons (INV-UI-01: rounded-full, min-h-[48px]) */
+.btn-capsule {
+    border-radius: 9999px;
+    min-height: 48px;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Soft, Calming Pulse for Agent Thinking (Non-Straining) */
+@keyframes calm-pulse {
+    0%, 100% {
+        opacity: 0.85;
+        transform: scale(1);
     }
     50% {
-        transform: scale(1.05);
         opacity: 1;
-    }
-    100% {
-        transform: scale(0.95);
-        opacity: 0.8;
+        transform: scale(1.02);
     }
 }
 
 .thinking-pulse {
-    animation: pulse-ring 2s infinite ease-in-out;
+    animation: calm-pulse 2.5s infinite ease-in-out;
+}
+
+/* Soothing Toast Notification */
+#notification-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    transform: translateY(120%);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+#notification-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Subtle Hover Transitions */
+.interactive-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.interactive-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(15, 118, 110, 0.08);
+}
+.dark .interactive-card:hover {
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
 }

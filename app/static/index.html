@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NagrikAMC · Autonomous Civic Complaint Agent</title>
+    <title>NagrikAMC · Ahmedabad Municipal Corporation Civic Portal</title>
     <!-- Tailwind CSS (Offline-First Local Vendor with CDN Fallback) -->
     <script src="/static/vendor/tailwind.js"></script>
     <script>if (!window.tailwind) document.write('<script src="https://cdn.tailwindcss.com"><\/script>');</script>
@@ -13,19 +13,30 @@
             theme: {
                 extend: {
                     colors: {
-                        amc: {
-                            50: '#f0fdf4',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            900: '#064e3b'
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e'
                         },
-                        brand: {
-                            primary: '#3b82f6',
-                            accent: '#f59e0b',
-                            danger: '#ef4444',
-                            surface: '#0f172a',
-                            card: '#1e293b'
+                        sage: {
+                            50: '#f6f8f6',
+                            100: '#e8ece8',
+                            200: '#d1dad1',
+                            300: '#b1c0b1',
+                            400: '#8ca28c',
+                            500: '#6c856c',
+                            600: '#546b54',
+                            700: '#435543',
+                            800: '#384538',
+                            900: '#303930'
                         }
                     }
                 }
@@ -38,288 +49,522 @@
     <script>if (!window.lucide) document.write('<script src="https://unpkg.com/lucide@latest"><\/script>');</script>
 </head>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-[#f8faf9] dark:bg-[#121816] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-teal-700 selection:text-white transition-colors duration-200">
 
     <!-- Top Demo Mode & Status Banner -->
-    <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/20 px-4 py-2 text-xs">
+    <div class="bg-teal-900 text-teal-100 dark:bg-[#0c1210] dark:text-teal-200 border-b border-teal-800/60 dark:border-teal-900/40 px-4 py-2 text-xs">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-                <span class="flex h-2 w-2 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span class="flex h-2.5 w-2.5 relative">
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-400"></span>
                 </span>
-                <span class="font-semibold text-emerald-400">AMC Municipal Mock Engine Active</span>
-                <span class="text-slate-400">· Zero-Flake Offline Resilience (INV-MOCK-01)</span>
+                <span class="font-semibold text-white">AMC Municipal Resolution Engine</span>
+                <span class="text-teal-200/80 hidden sm:inline">· Zero-Flake Offline Resilience (INV-MOCK-01)</span>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="text-slate-400 hidden sm:inline">Track 01: Civic Complaint Agent · AMC Ahmedabad</span>
-                <button id="btn-reset-seed" class="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
-                    <i data-lucide="rotate-ccw" class="w-3 h-3 text-emerald-400"></i>
+            <div class="flex items-center flex-wrap gap-2">
+                <!-- Theme Toggle Button (Day / Evening Comfort) -->
+                <button id="theme-toggle" type="button" class="px-3 py-1 rounded-full bg-teal-800/80 hover:bg-teal-700/80 text-teal-100 border border-teal-700/60 transition flex items-center gap-1.5 text-[11px] font-medium" title="Switch Theme">
+                    <i data-lucide="moon" class="w-3 h-3 text-teal-300"></i>
+                    <span>Night Comfort</span>
+                </button>
+
+                <!-- Chaos Testing Toggle & Fault Selector Badge -->
+                <div class="flex items-center gap-1.5 bg-teal-950/60 dark:bg-slate-900 border border-teal-700/50 dark:border-slate-700 rounded-full px-2 py-0.5">
+                    <button id="btn-toggle-chaos" type="button" class="px-2 py-0.5 rounded-full font-semibold transition flex items-center gap-1.5 bg-teal-800/80 text-teal-100 hover:text-white active:scale-95 text-[11px]" title="Toggle Chaos & Fault Injection">
+                        <i data-lucide="zap" id="chaos-bolt-icon" class="w-3 h-3 text-amber-300"></i>
+                        <span>Chaos Mode:</span>
+                        <span id="chaos-status-text" class="text-teal-300 uppercase font-mono font-bold text-[10px]">OFF</span>
+                    </button>
+                    <div class="h-3 w-px bg-teal-700/60"></div>
+                    <select id="chaos-fault-select" class="bg-transparent text-teal-100 text-[11px] font-medium outline-none cursor-pointer pr-1">
+                        <option value="500_INTERNAL_ERROR" class="bg-slate-900 text-slate-200">💥 500 DB Crash</option>
+                        <option value="NETWORK_TIMEOUT" class="bg-slate-900 text-slate-200">⏳ Network Timeout (&gt;5s)</option>
+                        <option value="RATE_LIMIT_429" class="bg-slate-900 text-slate-200">🚦 429 Rate Limit</option>
+                        <option value="CORRUPTED_PAYLOAD" class="bg-slate-900 text-slate-200">🧬 Corrupted Payload</option>
+                        <option value="JURISDICTION_UNRESOLVED" class="bg-slate-900 text-slate-200">🗺️ Ward Dispute (GIS)</option>
+                        <option value="CORRUPTED_IMAGE_UPLOAD" class="bg-slate-900 text-slate-200">🖼️ Corrupted Image Buffer</option>
+                    </select>
+                </div>
+
+                <button id="btn-reset-seed" class="px-2.5 py-1 rounded-full bg-teal-800/80 hover:bg-teal-700 text-teal-100 border border-teal-700/60 transition flex items-center gap-1.5 active:scale-95 text-[11px]">
+                    <i data-lucide="rotate-ccw" class="w-3 h-3 text-teal-300"></i>
                     Reset Seed Data
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Chaos Testing Active Alert Banner (Shows dynamically when Chaos Mode is Active) -->
+    <div id="chaos-alert-banner" class="hidden bg-amber-900/90 text-amber-100 border-b border-amber-700/60 px-4 py-2 text-xs transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="flex h-2 w-2 rounded-full bg-amber-400"></span>
+                <span class="font-bold text-amber-200 tracking-wide uppercase text-[11px]">⚡ Fault Injection Simulation:</span>
+                <span id="chaos-banner-title" class="font-semibold text-white">500 Municipal Database Crash</span>
+                <span id="chaos-banner-desc" class="text-amber-200/80 hidden lg:inline">· Simulates failure to showcase ErrorStateCard resilience</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="btn-chaos-instant-heal" class="px-3 py-1 rounded-full bg-amber-800 hover:bg-amber-700 text-white border border-amber-600 text-[11px] font-semibold transition flex items-center gap-1.5 active:scale-95 shadow-xs">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-300"></i>
+                    Turn Off Chaos &amp; Recover
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Navigation Header -->
-    <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-400/30">
-                    <i data-lucide="bot" class="w-6 h-6 text-slate-950 font-bold"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="font-bold text-lg text-white tracking-tight">NagrikAMC</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AI Agent</span>
+    <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#121816]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-md shadow-teal-700/20">
+                        <i data-lucide="landmark" class="w-6 h-6"></i>
                     </div>
-                    <p class="text-xs text-slate-400">Ahmedabad Municipal Corporation Autonomous Complaint System</p>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight">NagrikAMC</h1>
+                            <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">Civic Care Portal</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Ahmedabad Municipal Corporation · Autonomous Ward Resolution</p>
+                    </div>
                 </div>
+
+                <!-- Emergency Helpline Call pill on Mobile -->
+                <a href="tel:155303" class="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 text-xs font-semibold">
+                    <i data-lucide="phone-call" class="w-3.5 h-3.5 text-teal-600"></i>
+                    <span>155303</span>
+                </a>
             </div>
 
-            <!-- Navigation Tabs -->
-            <nav class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800 text-xs font-medium">
-                <button class="nav-tab active px-3.5 py-2 rounded-xl transition flex items-center gap-2" data-tab="tab-file">
-                    <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-400"></i>
-                    <span class="hidden md:inline">File Complaint</span>
+            <!-- Navigation Tabs & Direct Helpline Affordances -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+                <nav class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-full border border-slate-200 dark:border-slate-800 text-xs font-medium">
+                    <button class="nav-tab active px-4 py-2 rounded-full transition flex items-center gap-1.5" data-tab="tab-file">
+                        <i data-lucide="camera" class="w-4 h-4"></i>
+                        <span>File Complaint</span>
+                    </button>
+                    <button class="nav-tab px-4 py-2 rounded-full transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tab-status">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        <span>Status Check</span>
+                    </button>
+                    <button class="nav-tab px-4 py-2 rounded-full transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tab-video">
+                        <i data-lucide="video" class="w-4 h-4"></i>
+                        <span>Road Scanner</span>
+                    </button>
+                    <button class="nav-tab px-4 py-2 rounded-full transition flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" data-tab="tab-ledger">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        <span>AMC Ledger</span>
+                    </button>
+                </nav>
+
+                <!-- Ward Directory & Emergency Helpline Trigger -->
+                <button id="btn-open-directory" class="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-teal-700/10 hover:bg-teal-700/20 text-teal-800 dark:text-teal-300 border border-teal-700/30 text-xs font-semibold transition active:scale-95" title="View All AMC Ward Officers & Helplines">
+                    <i data-lucide="phone-call" class="w-3.5 h-3.5 text-teal-700 dark:text-teal-400"></i>
+                    <span>Civic Directory</span>
                 </button>
-                <button class="nav-tab px-3.5 py-2 rounded-xl transition flex items-center gap-2 text-slate-400 hover:text-white" data-tab="tab-status">
-                    <i data-lucide="search" class="w-3.5 h-3.5 text-sky-400"></i>
-                    <span class="hidden md:inline">Status Check</span>
-                </button>
-                <button class="nav-tab px-3.5 py-2 rounded-xl transition flex items-center gap-2 text-slate-400 hover:text-white" data-tab="tab-video">
-                    <i data-lucide="video" class="w-3.5 h-3.5 text-amber-400"></i>
-                    <span class="hidden md:inline">Road Scanner</span>
-                    <span class="px-1.5 py-0.2 text-[9px] font-bold bg-amber-500/20 text-amber-300 rounded">Stretch</span>
-                </button>
-                <button class="nav-tab px-3.5 py-2 rounded-xl transition flex items-center gap-2 text-slate-400 hover:text-white" data-tab="tab-ledger">
-                    <i data-lucide="database" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    <span class="hidden md:inline">AMC Ledger</span>
-                </button>
-            </nav>
+            </div>
         </div>
     </header>
 
     <!-- Main Content Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
         <!-- TAB 1: FILE COMPLAINT VIA AGENT -->
         <section id="tab-file" class="tab-pane active space-y-6">
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 p-6 shadow-2xl">
-                <div class="max-w-3xl space-y-2">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
-                        <i data-lucide="sparkles" class="w-3 h-3"></i>
-                        Autonomous Multi-Tool Agent Execution
+            <!-- Calming Human-Centered Civic Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-teal-800 via-teal-700 to-teal-900 text-white p-6 sm:p-8 shadow-sm">
+                <div class="max-w-3xl space-y-2 relative z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-teal-50 text-xs font-medium">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        Fast &amp; Transparent Civic Redressal
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                        Snap. Diagnose. Route. Resolve.
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                        Report Civic Issues &amp; Connect to Your Ward Officer
                     </h2>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        No manual ward hunting or confusing municipal departments. The AI agent analyzes your photo, determines the AMC ward and designated department, commits the complaint to the official ledger, and drafts public accountability posts.
+                    <p class="text-sm text-teal-50/90 leading-relaxed font-normal">
+                        Skip lengthy queues and municipal paperwork. Provide a photo of a road crater, sanitation backlog, or street hazard. The system diagnoses the issue, assigns your designated AMC Ward Officer, logs your ticket, and gives you instant contact affordances.
                     </p>
                 </div>
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left Column: Input Form & Sample Pickers -->
                 <div class="lg:col-span-5 space-y-5">
-                    <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                    <div class="card-soothing rounded-2xl p-4 sm:p-5 space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i>
-                                1-Tap Demo Samples
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="image" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
+                                Quick Demo Samples
                             </span>
-                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Offline Ready</span>
+                            <span class="text-[10px] text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-2.5 py-0.5 rounded-full border border-teal-200 dark:border-teal-800 font-medium">Instant Test</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" class="sample-btn p-2.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-emerald-500/50 hover:bg-slate-800/50 text-left transition active:scale-98"
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button type="button" class="sample-btn p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 hover:border-teal-500 hover:bg-teal-50/50 dark:hover:bg-slate-800/80 text-left transition active:scale-98"
                                     data-sample="pothole_cg_road.jpg" data-area="CG Road" data-issue="pothole">
-                                <div class="text-xs font-semibold text-rose-400 flex items-center gap-1">
-                                    <i data-lucide="alert-octagon" class="w-3 h-3"></i> Pothole
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-600"></i> Pothole
                                 </div>
-                                <div class="text-[11px] text-slate-300 font-medium">CG Road</div>
-                                <div class="text-[10px] text-slate-500">Ward W12 (West)</div>
+                                <div class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">CG Road</div>
+                                <div class="text-[10px] text-teal-700 dark:text-teal-400 font-medium">Ward W12 (West)</div>
                             </button>
 
-                            <button type="button" class="sample-btn p-2.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-emerald-500/50 hover:bg-slate-800/50 text-left transition active:scale-98"
+                            <button type="button" class="sample-btn p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 hover:border-teal-500 hover:bg-teal-50/50 dark:hover:bg-slate-800/80 text-left transition active:scale-98"
                                     data-sample="garbage_overflow_kankaria.jpg" data-area="Kankaria" data-issue="garbage">
-                                <div class="text-xs font-semibold text-amber-400 flex items-center gap-1">
-                                    <i data-lucide="trash-2" class="w-3 h-3"></i> Garbage
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-teal-600"></i> Sanitation
                                 </div>
-                                <div class="text-[11px] text-slate-300 font-medium">Kankaria Lake</div>
-                                <div class="text-[10px] text-slate-500">Ward W27 (South)</div>
+                                <div class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Kankaria Lake</div>
+                                <div class="text-[10px] text-teal-700 dark:text-teal-400 font-medium">Ward W27 (South)</div>
                             </button>
 
-                            <button type="button" class="sample-btn p-2.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-emerald-500/50 hover:bg-slate-800/50 text-left transition active:scale-98"
+                            <button type="button" class="sample-btn p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 hover:border-teal-500 hover:bg-teal-50/50 dark:hover:bg-slate-800/80 text-left transition active:scale-98"
                                     data-sample="broken_streetlight_vastrapur.jpg" data-area="Vastrapur" data-issue="streetlight">
-                                <div class="text-xs font-semibold text-purple-400 flex items-center gap-1">
-                                    <i data-lucide="lightbulb-off" class="w-3 h-3"></i> Streetlight
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-indigo-600"></i> Streetlight
                                 </div>
-                                <div class="text-[11px] text-slate-300 font-medium">Vastrapur</div>
-                                <div class="text-[10px] text-slate-500">Ward W08 (NW)</div>
+                                <div class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Vastrapur</div>
+                                <div class="text-[10px] text-teal-700 dark:text-teal-400 font-medium">Ward W08 (NW)</div>
                             </button>
 
-                            <button type="button" class="sample-btn p-2.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-emerald-500/50 hover:bg-slate-800/50 text-left transition active:scale-98"
+                            <button type="button" class="sample-btn p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 hover:border-teal-500 hover:bg-teal-50/50 dark:hover:bg-slate-800/80 text-left transition active:scale-98"
                                     data-sample="waterlogging_stadium.jpg" data-area="Stadium" data-issue="waterlogging">
-                                <div class="text-xs font-semibold text-cyan-400 flex items-center gap-1">
-                                    <i data-lucide="droplets" class="w-3 h-3"></i> Waterlogging
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="droplets" class="w-3.5 h-3.5 text-sky-600"></i> Drainage
                                 </div>
-                                <div class="text-[11px] text-slate-300 font-medium">Stadium Area</div>
-                                <div class="text-[10px] text-slate-500">Ward W12 (West)</div>
+                                <div class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Stadium Area</div>
+                                <div class="text-[10px] text-teal-700 dark:text-teal-400 font-medium">Ward W12 (West)</div>
                             </button>
                         </div>
                     </div>
 
-                    <form id="form-file-complaint" class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <form id="form-file-complaint" class="card-soothing rounded-2xl p-5 space-y-4">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-400"></i>
-                                Upload Photo or Video Frame
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="upload-cloud" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
+                                Upload Issue Photo
                             </label>
-                            <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-xl p-4 text-center cursor-pointer transition bg-slate-950/40 relative overflow-hidden group">
+                            <div id="dropzone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-600 dark:hover:border-teal-500 rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-900/40 relative overflow-hidden group">
                                 <input type="file" id="file-input" name="file" accept="image/*" class="hidden">
                                 <input type="hidden" id="selected-sample" name="sampleName" value="pothole_cg_road.jpg">
                                 
                                 <div id="dropzone-preview" class="space-y-2">
-                                    <img id="preview-img" src="/static/samples/pothole_cg_road.jpg" alt="Selected Preview" class="w-full h-44 object-cover rounded-lg border border-slate-800 shadow-inner">
-                                    <div class="flex items-center justify-between text-xs text-slate-400 px-1">
-                                        <span id="preview-filename" class="font-mono text-emerald-400">pothole_cg_road.jpg</span>
-                                        <span class="text-[10px] text-slate-500">Click or drop to replace</span>
+                                    <img id="preview-img" src="/static/samples/pothole_cg_road.jpg" alt="Selected Preview" class="w-full h-44 object-cover rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                                    <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+                                        <span id="preview-filename" class="font-mono text-teal-700 dark:text-teal-300 font-medium">pothole_cg_road.jpg</span>
+                                        <span class="text-[11px]">Click or drop to change</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-1.5">
-                            <label for="input-area" class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+                            <label for="input-area" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center justify-between">
                                 <span class="flex items-center gap-1.5">
-                                    <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
                                     Area / Landmark
                                 </span>
-                                <span class="text-[10px] text-slate-400">Ahmedabad, Gujarat</span>
+                                <span class="text-[11px] text-slate-400">Ahmedabad City</span>
                             </label>
-                            <div class="relative">
-                                <input type="text" id="input-area" name="area" value="CG Road" placeholder="e.g. Navrangpura, Stadium, Kankaria..."
-                                       class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition">
-                            </div>
+                            <input type="text" id="input-area" name="area" value="CG Road" placeholder="e.g. Navrangpura, Stadium, Kankaria..."
+                                   class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 dark:focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 outline-none transition">
                             <div class="flex flex-wrap gap-1.5 text-[11px] pt-1">
-                                <span class="text-slate-500">Suggestions:</span>
-                                <button type="button" class="area-chip text-slate-400 hover:text-emerald-300 underline" data-val="Navrangpura">Navrangpura</button>
-                                <button type="button" class="area-chip text-slate-400 hover:text-emerald-300 underline" data-val="Maninagar">Maninagar</button>
-                                <button type="button" class="area-chip text-slate-400 hover:text-emerald-300 underline" data-val="Kankaria">Kankaria</button>
-                                <button type="button" class="area-chip text-slate-400 hover:text-emerald-300 underline" data-val="Bodakdev">Bodakdev</button>
-                                <button type="button" class="area-chip text-slate-400 hover:text-emerald-300 underline" data-val="Vastrapur">Vastrapur</button>
+                                <span class="text-slate-400">Popular:</span>
+                                <button type="button" class="area-chip text-teal-700 dark:text-teal-300 hover:underline font-medium" data-val="Navrangpura">Navrangpura</button>
+                                <button type="button" class="area-chip text-teal-700 dark:text-teal-300 hover:underline font-medium" data-val="Maninagar">Maninagar</button>
+                                <button type="button" class="area-chip text-teal-700 dark:text-teal-300 hover:underline font-medium" data-val="Kankaria">Kankaria</button>
+                                <button type="button" class="area-chip text-teal-700 dark:text-teal-300 hover:underline font-medium" data-val="Bodakdev">Bodakdev</button>
+                                <button type="button" class="area-chip text-teal-700 dark:text-teal-300 hover:underline font-medium" data-val="Vastrapur">Vastrapur</button>
                             </div>
                         </div>
 
                         <div class="space-y-1.5">
-                            <label for="input-notes" class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
-                                Additional Description (Optional)
+                            <label for="input-notes" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="file-text" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
+                                Additional Notes (Optional)
                             </label>
-                            <textarea id="input-notes" name="notes" rows="2" placeholder="Citizen observations (e.g. hazardous during night, near school)..."
-                                      class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 outline-none transition resize-none"></textarea>
+                            <textarea id="input-notes" name="notes" rows="2" placeholder="Describe specific details (e.g. near bus stand, water accumulation)..."
+                                      class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 dark:focus:border-teal-500 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 outline-none transition resize-none"></textarea>
                         </div>
 
+                        <!-- Capsule Submit Button (INV-UI-01: rounded-full, min-h-[48px]) -->
                         <button type="submit" id="btn-submit-complaint"
-                                class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/20 active:scale-98 transition flex items-center justify-center gap-2">
-                            <i data-lucide="play" class="w-4 h-4 fill-slate-950"></i>
-                            Execute Autonomous AI Filing
+                                class="btn-capsule w-full min-h-[48px] bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-bold text-sm tracking-wide shadow-md shadow-teal-700/20 active:scale-98 transition flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Register Complaint &amp; Get Ward Contacts</span>
                         </button>
                     </form>
                 </div>
 
-                <!-- Right Column: Deep Thinking Stream & Output Ticket -->
+                <!-- Right Column: Processing Stream & Output Ticket -->
                 <div class="lg:col-span-7 space-y-5">
-                    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
-                        <div class="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                    <!-- Autonomous Processing Card -->
+                    <div class="card-soothing rounded-2xl overflow-hidden flex flex-col">
+                        <div class="bg-slate-50 dark:bg-slate-900 px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <div class="flex gap-1.5">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-                                </div>
-                                <span class="font-mono text-xs font-semibold text-slate-300 pl-2 flex items-center gap-1.5">
-                                    <i data-lucide="cpu" class="w-3.5 h-3.5 text-emerald-400"></i>
-                                    Agent Reasoning Trace & Tool Pipeline
+                                <div class="w-2.5 h-2.5 rounded-full bg-teal-600"></div>
+                                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="activity" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
+                                    Autonomous Civic Processing Steps
                                 </span>
                             </div>
-                            <span id="agent-status-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">
-                                STANDBY
+                            <span id="agent-status-pill" class="text-[10px] font-mono px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold">
+                                READY
                             </span>
                         </div>
 
-                        <div id="thinking-stream" class="p-4 space-y-3 font-mono text-xs max-h-[340px] overflow-y-auto scrollbar-thin">
-                            <div class="text-slate-500 italic flex items-center gap-2">
-                                <i data-lucide="terminal" class="w-4 h-4 text-slate-600"></i>
-                                Select a sample photo or upload your own, then click "Execute Autonomous AI Filing" to watch the agent reason in real time.
+                        <div id="thinking-stream" class="p-5 space-y-3 text-xs max-h-[340px] overflow-y-auto">
+                            <div class="text-slate-500 dark:text-slate-400 italic flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></i>
+                                Select a demo photo or upload your own, then click "Register Complaint &amp; Get Ward Contacts" to see autonomous triage.
                             </div>
                         </div>
                     </div>
 
-                    <div id="result-card" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-5 space-y-4 shadow-2xl relative overflow-hidden">
-                        <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
+                    <!-- ErrorStateCard for Chaos Injection & Runtime Failures (INV-EDGE-01) -->
+                    <div id="error-state-card" class="hidden bg-rose-50/80 dark:bg-rose-950/30 border border-rose-300 dark:border-rose-900/60 rounded-2xl p-5 space-y-4 shadow-sm transition-all duration-300">
                         <div class="flex items-start justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span id="err-category-badge" class="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider bg-rose-100 dark:bg-rose-900/60 border border-rose-300 dark:border-rose-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                        <i data-lucide="alert-triangle" class="w-3 h-3 text-rose-600"></i>
+                                        Fault Intercepted
+                                    </span>
+                                    <span id="err-http-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-slate-700">
+                                        HTTP 500
+                                    </span>
+                                </div>
+                                <h3 id="err-title" class="text-base font-bold text-slate-900 dark:text-white">
+                                    Simulated Municipal Database Crash
+                                </h3>
+                            </div>
+                            <button id="btn-err-dismiss" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition p-1" title="Dismiss Error">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Technical Diagnostic Box -->
+                        <div class="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-rose-200 dark:border-slate-800 text-xs space-y-2">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                                <div>
+                                    <span class="text-slate-400 block text-[10px] uppercase font-bold">Subsystem</span>
+                                    <span id="err-subsystem" class="text-slate-800 dark:text-slate-200 font-mono font-semibold truncate block">amc_database_pool</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[10px] uppercase font-bold">Timestamp</span>
+                                    <span id="err-timestamp" class="text-slate-800 dark:text-slate-200 truncate block">Just now</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[10px] uppercase font-bold">Form State</span>
+                                    <span class="text-teal-700 dark:text-teal-300 font-semibold flex items-center gap-1">
+                                        <i data-lucide="check" class="w-3 h-3"></i> 100% Preserved
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="border-t border-slate-100 dark:border-slate-800 pt-2">
+                                <div class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed" id="err-detail">
+                                    Simulated municipal database connection pool exhaustion. Form input state was preserved without data loss.
+                                </div>
+                            </div>
+                            <div id="err-recovery-hint" class="text-amber-800 dark:text-amber-200 text-xs bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900/40 flex items-start gap-2">
+                                <i data-lucide="info" class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600"></i>
+                                <span id="err-recovery-text">Suggested Action: Click 'Disable Chaos &amp; Self-Heal' to recover cleanly.</span>
+                            </div>
+                        </div>
+
+                        <!-- 1-Click Action Recovery Buttons (INV-UI-01) -->
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <button id="btn-err-self-heal" type="button"
+                                    class="btn-capsule flex-1 min-h-[48px] bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs shadow-sm active:scale-98 transition flex items-center justify-center gap-2">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                                <span>Disable Chaos &amp; Self-Heal</span>
+                            </button>
+                            <button id="btn-err-retry" type="button"
+                                    class="btn-capsule min-h-[48px] px-5 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 font-medium text-xs border border-slate-300 dark:border-slate-700 active:scale-98 transition flex items-center gap-1.5">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 text-amber-600"></i>
+                                <span>Retry Under Chaos</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Complaint Filing Result Card & Municipal Authority Desk -->
+                    <div id="result-card" class="hidden card-soothing rounded-2xl p-5 sm:p-6 space-y-5 shadow-md transition-all duration-300">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                             <div>
-                                <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                                    Complaint Registered with AMC
+                                <span class="text-[10px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider bg-teal-50 dark:bg-teal-950 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800 inline-block">
+                                    Official AMC Complaint Registered
                                 </span>
-                                <h3 id="res-tracking-id" class="text-xl font-extrabold text-white font-mono mt-1 flex items-center gap-2">
+                                <h3 id="res-tracking-id" class="text-xl font-extrabold text-slate-900 dark:text-white font-mono mt-1.5 flex items-center gap-2">
                                     AMC-2026-000126
-                                    <button id="btn-copy-id" class="text-slate-400 hover:text-white transition p-1" title="Copy ID">
+                                    <button id="btn-copy-id" class="text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 transition p-1" title="Copy Tracking ID">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </button>
                                 </h3>
                             </div>
-                            <button id="btn-track-now" class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/30 transition flex items-center gap-1.5">
+                            <button id="btn-track-now" class="btn-capsule min-h-[42px] px-4 py-2 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950 dark:hover:bg-teal-900 text-teal-800 dark:text-teal-200 text-xs font-semibold rounded-full border border-teal-200 dark:border-teal-800 transition flex items-center gap-1.5 self-start sm:self-auto">
                                 <i data-lucide="activity" class="w-3.5 h-3.5"></i>
-                                Track Status
+                                <span>Track Live Status</span>
                             </button>
                         </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 text-xs">
+                        <!-- Ticket Summary Badges -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs">
                             <div>
-                                <div class="text-slate-500 text-[10px] uppercase font-bold">Issue Type</div>
-                                <div id="res-issue" class="font-bold text-white capitalize">Pothole</div>
+                                <div class="text-slate-400 text-[10px] uppercase font-bold">Issue Type</div>
+                                <div id="res-issue" class="font-bold text-slate-900 dark:text-white capitalize">Pothole</div>
                             </div>
                             <div>
-                                <div class="text-slate-500 text-[10px] uppercase font-bold">Jurisdiction</div>
-                                <div id="res-ward" class="font-bold text-white">W12 (Navrangpura)</div>
+                                <div class="text-slate-400 text-[10px] uppercase font-bold">Jurisdiction</div>
+                                <div id="res-ward" class="font-bold text-slate-900 dark:text-white">W12 (Navrangpura)</div>
                             </div>
                             <div>
-                                <div class="text-slate-500 text-[10px] uppercase font-bold">Department</div>
-                                <div id="res-dept" class="font-bold text-white truncate">Roads & Buildings</div>
+                                <div class="text-slate-400 text-[10px] uppercase font-bold">Department</div>
+                                <div id="res-dept" class="font-bold text-slate-900 dark:text-white truncate">Roads &amp; Buildings</div>
                             </div>
                             <div>
-                                <div class="text-slate-500 text-[10px] uppercase font-bold">SLA Target</div>
-                                <div id="res-sla" class="font-bold text-emerald-400">Within 24 Hours</div>
+                                <div class="text-slate-400 text-[10px] uppercase font-bold">SLA Target</div>
+                                <div id="res-sla" class="font-bold text-teal-700 dark:text-teal-300">Within 24 Hours</div>
                             </div>
                         </div>
 
-                        <div class="text-xs text-slate-300 bg-slate-950/40 p-3 rounded-xl border border-slate-800/80 space-y-1">
-                            <div class="text-slate-400 text-[11px] font-medium flex items-center gap-1.5">
-                                <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-                                Assigned Field Engineer:
-                                <span id="res-engineer" class="text-white font-semibold">Er. Rajesh Dave (Sub-Divisional Roads Officer)</span>
+                        <div class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200/60 dark:border-slate-800 space-y-1">
+                            <div class="text-slate-500 text-[11px] font-medium flex items-center gap-1.5">
+                                <i data-lucide="user-check" class="w-3.5 h-3.5 text-teal-600"></i>
+                                Field Engineer:
+                                <span id="res-engineer" class="text-slate-800 dark:text-slate-200 font-semibold">Er. Rajesh Dave (Sub-Divisional Roads Officer)</span>
                             </div>
-                            <div id="res-desc" class="text-slate-400 text-[11px] italic">
-                                "Severe asphalt surface cavity detected on municipal transit corridor."
+                            <div id="res-desc" class="text-slate-500 italic text-[11px]">
+                                "Severe asphalt cavity detected on transit corridor."
                             </div>
                         </div>
 
-                        <div id="social-draft-container" class="space-y-2 pt-2 border-t border-slate-800">
+                        <!-- DEDICATED MUNICIPAL AUTHORITY & ESCALATION DESK (Filed Result Card) -->
+                        <div class="rounded-2xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/60 p-4 sm:p-5 space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-teal-200/60 dark:border-teal-800/40">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-teal-700 text-white flex items-center justify-center font-bold shadow-xs">
+                                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider block">Assigned Ward Authority</span>
+                                        <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white" id="filed-officer-name">Shri Arvind Trivedi</h4>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400" id="filed-ward-title">Ward W12 · Navrangpura (West Zone)</p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-200 border border-teal-200 dark:border-teal-800 self-start sm:self-auto">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-teal-600"></i>
+                                    Direct Municipal Contact
+                                </span>
+                            </div>
+
+                            <!-- Authority Contact & Office Details -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                                        <i data-lucide="phone" class="w-3.5 h-3.5 text-teal-600"></i>
+                                        Ward Officer Direct Line
+                                    </span>
+                                    <a id="filed-officer-phone-link" href="tel:+917927551201" class="font-bold text-teal-800 dark:text-teal-300 hover:underline block text-sm">
+                                        <span id="filed-officer-phone">+91-79-2755-1201</span>
+                                    </a>
+                                    <span class="text-[10px] text-slate-400">Available: Mon-Sat 10:30 AM - 5:30 PM</span>
+                                </div>
+
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                                        <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-600"></i>
+                                        AMC 24x7 Civic Helpline
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <a href="tel:155303" class="font-bold text-slate-900 dark:text-white hover:text-teal-700 text-sm">
+                                            155303 (Toll-Free)
+                                        </a>
+                                        <span class="text-[10px] text-slate-400">/ 1800-233-2330</span>
+                                    </div>
+                                    <span class="text-[10px] text-teal-700 dark:text-teal-400 font-medium">● 24x7 Civic Emergency Response</span>
+                                </div>
+
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1 sm:col-span-2 lg:col-span-1">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center justify-between">
+                                        <span class="flex items-center gap-1.5">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-teal-600"></i>
+                                            Physical Ward Office
+                                        </span>
+                                        <a id="filed-maps-link" href="#" target="_blank" rel="noopener noreferrer" class="text-teal-700 dark:text-teal-300 hover:underline flex items-center gap-0.5 text-[11px] font-semibold">
+                                            <span>Maps</span>
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                        </a>
+                                    </span>
+                                    <div id="filed-office-address" class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug line-clamp-2">
+                                        AMC West Zone Office, Usmanpura, Ahmedabad - 380013
+                                    </div>
+                                </div>
+
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1 sm:col-span-2 lg:col-span-3">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                                                Department Escalation:
+                                                <span id="filed-dept-name" class="text-slate-900 dark:text-white font-bold">Roads &amp; Buildings</span>
+                                            </span>
+                                            <span class="text-slate-300">·</span>
+                                            <span id="filed-lead-engineer" class="text-xs text-slate-700 dark:text-slate-300">Er. Rajesh Dave (Executive Engineer)</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 text-xs flex-wrap">
+                                            <a id="filed-dept-hotline-link" href="tel:+917927551234" class="text-teal-700 dark:text-teal-300 hover:underline flex items-center gap-1 font-medium">
+                                                <i data-lucide="phone" class="w-3 h-3"></i>
+                                                <span id="filed-dept-hotline">+91-79-2755-1234</span>
+                                            </a>
+                                            <a id="filed-dept-email-link" href="mailto:roads@ahmedabadcity.gov.in" class="text-slate-600 dark:text-slate-400 hover:underline flex items-center gap-1">
+                                                <i data-lucide="mail" class="w-3 h-3"></i>
+                                                <span id="filed-dept-email">roads@ahmedabadcity.gov.in</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4 Direct Action Capsule Buttons (INV-UI-01: rounded-full, min-h-[48px]) -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+                                <a id="filed-btn-call-officer" href="tel:+917927551201"
+                                   class="btn-capsule min-h-[48px] bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                    <span>Call Ward Officer</span>
+                                </a>
+
+                                <a id="filed-btn-call-helpline" href="tel:155303"
+                                   class="btn-capsule min-h-[48px] bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold text-xs shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="phone-call" class="w-4 h-4 text-amber-400"></i>
+                                    <span>Call AMC 24x7 Helpline</span>
+                                </a>
+
+                                <a id="filed-btn-whatsapp" href="https://wa.me/919978322880" target="_blank" rel="noopener noreferrer"
+                                   class="btn-capsule min-h-[48px] bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <span>WhatsApp Grievance Desk</span>
+                                </a>
+
+                                <button id="filed-btn-copy-details" type="button"
+                                        class="btn-capsule min-h-[48px] bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-xs border border-slate-300 dark:border-slate-600 active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="clipboard-copy" class="w-4 h-4 text-teal-700 dark:text-teal-400"></i>
+                                    <span>Copy Authority Details</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Social Media Escalation Draft -->
+                        <div id="social-draft-container" class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                             <div class="flex items-center justify-between text-xs">
-                                <span class="font-bold text-sky-400 flex items-center gap-1.5">
-                                    <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                                    Social Media Civic Escalation Draft
+                                <span class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                    <i data-lucide="share-2" class="w-3.5 h-3.5 text-teal-600"></i>
+                                    Civic Accountability Post Draft
                                 </span>
                                 <a id="btn-tweet-intent" href="#" target="_blank"
-                                   class="px-2.5 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-semibold rounded-lg text-xs border border-sky-500/30 transition flex items-center gap-1">
-                                    <i data-lucide="send" class="w-3 h-3"></i> Post to X
+                                   class="btn-capsule min-h-[36px] px-4 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
+                                    <i data-lucide="send" class="w-3 h-3"></i> Post to X (Twitter)
                                 </a>
                             </div>
-                            <div id="social-preview-body" class="text-xs text-slate-300 font-sans bg-slate-950/80 p-3 rounded-xl border border-slate-800 whitespace-pre-line">
+                            <div id="social-preview-body" class="text-xs text-slate-600 dark:text-slate-300 font-sans bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 whitespace-pre-line leading-relaxed">
                             </div>
                         </div>
                     </div>
@@ -329,128 +574,241 @@
 
         <!-- TAB 2: CITIZEN STATUS TRACKER -->
         <section id="tab-status" class="tab-pane hidden space-y-6">
-            <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950/40 border border-slate-800 p-6 shadow-2xl">
+            <div class="rounded-3xl bg-gradient-to-r from-teal-800 via-teal-700 to-slate-800 text-white p-6 sm:p-8 shadow-sm">
                 <div class="max-w-3xl space-y-2">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs font-semibold">
-                        <i data-lucide="message-square" class="w-3 h-3"></i>
-                        Conversational Status Agent
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-teal-50 text-xs font-medium">
+                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                        Live AMC Ticket Inspection
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                        "What's the status?"
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                        Check Status &amp; Contact Responsible Authority
                     </h2>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Citizens can ask plain conversational queries or specify their tracking ID. The agent queries municipal records in real time and details the live progress lifecycle.
+                    <p class="text-sm text-teal-50/90 leading-relaxed font-normal">
+                        Track progress in real time, view inspection updates, and reach out directly to the assigned Ward Officer or Department Lead for escalation.
                     </p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-5 space-y-4">
-                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+                    <div class="card-soothing rounded-2xl p-5 space-y-4">
                         <form id="form-query-status" class="space-y-3">
-                            <label for="input-status-query" class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="search" class="w-4 h-4 text-sky-400"></i>
-                                Natural Language Query
+                            <label for="input-status-query" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="search" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
+                                Natural Query or Tracking ID
                             </label>
-                            <div class="relative">
-                                <input type="text" id="input-status-query" value="what's the status of AMC-2026-000123?"
-                                       placeholder="Ask: what's the status of AMC-2026-000123?"
-                                       class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none transition">
-                            </div>
+                            <input type="text" id="input-status-query" value="what's the status of AMC-2026-000123?"
+                                   placeholder="Ask: what's the status of AMC-2026-000123?"
+                                   class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-teal-600 dark:focus:border-teal-500 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 outline-none transition">
 
+                            <!-- Capsule Ask Button (INV-UI-01) -->
                             <button type="submit" id="btn-query-agent"
-                                    class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-sky-500/20 active:scale-98 transition flex items-center justify-center gap-2">
-                                <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                Ask Agent
+                                    class="btn-capsule w-full min-h-[48px] bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm tracking-wide shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <span>Check Status &amp; Authority</span>
                             </button>
                         </form>
 
-                        <div class="space-y-2 pt-2 border-t border-slate-800">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick Sample Queries:</span>
+                        <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Quick Sample Inquiries:</span>
                             <div class="flex flex-col gap-1.5">
-                                <button type="button" class="query-chip text-left px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 text-xs text-slate-300 transition"
+                                <button type="button" class="query-chip text-left px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 text-xs text-slate-700 dark:text-slate-300 transition"
                                         data-q="what's the status?">
-                                    💬 "what's the status?" (Latest Ticket)
+                                    💬 "what's the status?" (Most Recent Ticket)
                                 </button>
-                                <button type="button" class="query-chip text-left px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 text-xs text-slate-300 transition"
+                                <button type="button" class="query-chip text-left px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 text-xs text-slate-700 dark:text-slate-300 transition"
                                         data-q="check status of AMC-2026-000123">
-                                    🔍 "check status of AMC-2026-000123" (Assigned Pothole)
+                                    🔍 "check status of AMC-2026-000123" (Assigned Pothole · Ward W12)
                                 </button>
-                                <button type="button" class="query-chip text-left px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 text-xs text-slate-300 transition"
+                                <button type="button" class="query-chip text-left px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 text-xs text-slate-700 dark:text-slate-300 transition"
                                         data-q="what's the status of AMC-2026-000124?">
-                                    🚚 "what's the status of AMC-2026-000124?" (In Progress Garbage)
+                                    🚚 "what's the status of AMC-2026-000124?" (In Progress Sanitation · Ward W27)
                                 </button>
-                                <button type="button" class="query-chip text-left px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-sky-500 text-xs text-slate-300 transition"
+                                <button type="button" class="query-chip text-left px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 text-xs text-slate-700 dark:text-slate-300 transition"
                                         data-q="what is the status of AMC-2026-000125?">
-                                    💡 "what is the status of AMC-2026-000125?" (Resolved Streetlight)
+                                    💡 "what is the status of AMC-2026-000125?" (Resolved Streetlight · Ward W08)
                                 </button>
                             </div>
                         </div>
 
-                        <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-bold text-slate-300 flex items-center gap-1.5">
-                                    <i data-lucide="fast-forward" class="w-3.5 h-3.5 text-amber-400"></i>
-                                    Live Demo Lifecycle Simulator
-                                </span>
-                            </div>
-                            <p class="text-[11px] text-slate-400">
+                        <div class="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-2">
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-xs flex items-center gap-1.5">
+                                <i data-lucide="fast-forward" class="w-3.5 h-3.5 text-amber-600"></i>
+                                Live Demo Lifecycle Simulator
+                            </span>
+                            <p class="text-[11px] text-slate-500">
                                 Simulate field crew action on stage to demonstrate live status changes to judges.
                             </p>
                             <button type="button" id="btn-advance-status"
-                                    class="w-full py-2 px-3 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-semibold transition flex items-center justify-center gap-2">
-                                <i data-lucide="step-forward" class="w-3.5 h-3.5"></i>
-                                Advance to Next Stage
+                                    class="btn-capsule w-full min-h-[42px] px-3 rounded-full bg-amber-600/15 hover:bg-amber-600/25 text-amber-800 dark:text-amber-200 border border-amber-500/30 text-xs font-semibold transition flex items-center justify-center gap-2">
+                                <i data-lucide="step-forward" class="w-3.5 h-3.5 text-amber-600"></i>
+                                <span>Advance to Next Stage</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <div class="lg:col-span-7 space-y-4">
-                    <div id="status-result-box" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-2xl">
-                        <div class="flex items-center justify-between">
+                    <div id="status-result-box" class="card-soothing rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                             <div>
-                                <span class="text-[10px] font-bold text-sky-400 uppercase tracking-wider bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-full">
+                                <span class="text-[10px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider bg-teal-50 dark:bg-teal-950 px-2.5 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
                                     Live AMC Status Response
                                 </span>
-                                <h3 id="status-card-id" class="text-xl font-mono font-bold text-white mt-1">
+                                <h3 id="status-card-id" class="text-xl font-mono font-extrabold text-slate-900 dark:text-white mt-1">
                                     AMC-2026-000123
                                 </h3>
                             </div>
-                            <span id="status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            <span id="status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
                                 Assigned
                             </span>
                         </div>
 
+                        <!-- Progress Bar -->
                         <div class="space-y-2">
-                            <div class="flex justify-between text-[11px] font-mono text-slate-400">
+                            <div class="flex justify-between text-[11px] font-medium text-slate-500">
                                 <span>Submitted</span>
                                 <span>Assigned</span>
                                 <span>In Progress</span>
                                 <span>Work Verified</span>
                                 <span>Resolved</span>
                             </div>
-                            <div class="w-full h-2 rounded-full bg-slate-950 overflow-hidden">
-                                <div id="status-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 transition-all duration-500" style="width: 40%"></div>
+                            <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div id="status-progress-bar" class="h-full bg-teal-600 dark:bg-teal-500 transition-all duration-500" style="width: 40%"></div>
                             </div>
                         </div>
 
-                        <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-2">
-                            <div class="flex items-center gap-2 text-xs font-semibold text-sky-400">
-                                <i data-lucide="bot" class="w-4 h-4"></i>
-                                Agent Synthesized Response
+                        <!-- Synthesized Message -->
+                        <div class="bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center gap-2 text-xs font-semibold text-teal-800 dark:text-teal-300">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                                Agent Synthesized Status Report
                             </div>
-                            <div id="status-agent-message" class="text-xs text-slate-300 leading-relaxed whitespace-pre-line font-mono">
+                            <div id="status-agent-message" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line font-mono">
                                 Loading live AMC record...
                             </div>
                         </div>
 
+                        <!-- DEDICATED MUNICIPAL AUTHORITY & ESCALATION DESK (Status Result Box) -->
+                        <div class="rounded-2xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/60 p-4 sm:p-5 space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-teal-200/60 dark:border-teal-800/40">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-teal-700 text-white flex items-center justify-center font-bold shadow-xs">
+                                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider block">Assigned Ward Authority</span>
+                                        <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white" id="status-officer-name">Shri Arvind Trivedi</h4>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400" id="status-ward-title">Ward W12 · Navrangpura (West Zone)</p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-200 border border-teal-200 dark:border-teal-800 self-start sm:self-auto">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-teal-600"></i>
+                                    Direct Municipal Contact
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                                        <i data-lucide="phone" class="w-3.5 h-3.5 text-teal-600"></i>
+                                        Ward Officer Direct Line
+                                    </span>
+                                    <a id="status-officer-phone-link" href="tel:+917927551201" class="font-bold text-teal-800 dark:text-teal-300 hover:underline block text-sm">
+                                        <span id="status-officer-phone">+91-79-2755-1201</span>
+                                    </a>
+                                    <span class="text-[10px] text-slate-400">Available: Mon-Sat 10:30 AM - 5:30 PM</span>
+                                </div>
+
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                                        <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-600"></i>
+                                        AMC 24x7 Civic Helpline
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <a href="tel:155303" class="font-bold text-slate-900 dark:text-white hover:text-teal-700 text-sm">
+                                            155303 (Toll-Free)
+                                        </a>
+                                        <span class="text-[10px] text-slate-400">/ 1800-233-2330</span>
+                                    </div>
+                                    <span class="text-[10px] text-teal-700 dark:text-teal-400 font-medium">● 24x7 Civic Emergency Response</span>
+                                </div>
+
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1 sm:col-span-2 lg:col-span-1">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center justify-between">
+                                        <span class="flex items-center gap-1.5">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-teal-600"></i>
+                                            Physical Ward Office
+                                        </span>
+                                        <a id="status-maps-link" href="#" target="_blank" rel="noopener noreferrer" class="text-teal-700 dark:text-teal-300 hover:underline flex items-center gap-0.5 text-[11px] font-semibold">
+                                            <span>Maps</span>
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                        </a>
+                                    </span>
+                                    <div id="status-office-address" class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-snug line-clamp-2">
+                                        AMC West Zone Office, Usmanpura, Ahmedabad - 380013
+                                    </div>
+                                </div>
+
+                                <div class="bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-teal-100 dark:border-teal-900/40 space-y-1 sm:col-span-2 lg:col-span-3">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                                                Department Escalation:
+                                                <span id="status-dept-name" class="text-slate-900 dark:text-white font-bold">Roads &amp; Buildings</span>
+                                            </span>
+                                            <span class="text-slate-300">·</span>
+                                            <span id="status-lead-engineer" class="text-xs text-slate-700 dark:text-slate-300">Er. Rajesh Dave (Executive Engineer)</span>
+                                        </div>
+                                        <div class="flex items-center gap-3 text-xs flex-wrap">
+                                            <a id="status-dept-hotline-link" href="tel:+917927551234" class="text-teal-700 dark:text-teal-300 hover:underline flex items-center gap-1 font-medium">
+                                                <i data-lucide="phone" class="w-3 h-3"></i>
+                                                <span id="status-dept-hotline">+91-79-2755-1234</span>
+                                            </a>
+                                            <a id="status-dept-email-link" href="mailto:roads@ahmedabadcity.gov.in" class="text-slate-600 dark:text-slate-400 hover:underline flex items-center gap-1">
+                                                <i data-lucide="mail" class="w-3 h-3"></i>
+                                                <span id="status-dept-email">roads@ahmedabadcity.gov.in</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4 Direct Action Capsule Buttons (INV-UI-01) -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+                                <a id="status-btn-call-officer" href="tel:+917927551201"
+                                   class="btn-capsule min-h-[48px] bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                    <span>Call Ward Officer</span>
+                                </a>
+
+                                <a id="status-btn-call-helpline" href="tel:155303"
+                                   class="btn-capsule min-h-[48px] bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold text-xs shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="phone-call" class="w-4 h-4 text-amber-400"></i>
+                                    <span>Call AMC 24x7 Helpline</span>
+                                </a>
+
+                                <a id="status-btn-whatsapp" href="https://wa.me/919978322880" target="_blank" rel="noopener noreferrer"
+                                   class="btn-capsule min-h-[48px] bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <span>WhatsApp Grievance Desk</span>
+                                </a>
+
+                                <button id="status-btn-copy-details" type="button"
+                                        class="btn-capsule min-h-[48px] bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-xs border border-slate-300 dark:border-slate-600 active:scale-98 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="clipboard-copy" class="w-4 h-4 text-teal-700 dark:text-teal-400"></i>
+                                    <span>Copy Authority Details</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Timeline History -->
                         <div class="space-y-3">
-                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i>
-                                Audit Timeline History
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+                                Official Municipal Audit Timeline
                             </h4>
-                            <div id="status-timeline-list" class="space-y-3 pl-2 border-l-2 border-slate-800">
+                            <div id="status-timeline-list" class="space-y-3 pl-2 border-l-2 border-slate-200 dark:border-slate-800">
                             </div>
                         </div>
                     </div>
@@ -460,57 +818,58 @@
 
         <!-- TAB 3: ROAD VIDEO SCANNER -->
         <section id="tab-video" class="tab-pane hidden space-y-6">
-            <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-slate-800 p-6 shadow-2xl">
+            <div class="rounded-3xl bg-gradient-to-r from-amber-800 via-amber-700 to-slate-800 text-white p-6 sm:p-8 shadow-sm">
                 <div class="max-w-3xl space-y-2">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
-                        <i data-lucide="video" class="w-3 h-3"></i>
-                        Track 01 Stretch Goal
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-amber-100 text-xs font-medium">
+                        <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                        Proactive Surveillance Stream
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
                         Continuous Road Video Pothole Scanner
                     </h2>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Feeds continuous dashcam video footage, samples 1 frame every 3 seconds, runs autonomous vision detection on asphalt surfaces, pins detected road craters on the Ahmedabad transit map, and auto-files complaints through the Civic Complaint Agent.
+                    <p class="text-sm text-amber-100/90 leading-relaxed font-normal">
+                        Samples 1 frame every 3 seconds from vehicle dashcam video, runs vision analysis on bituminous surfaces, tags GPS coordinates, and automatically registers municipal tickets with the responsible ward cell.
                     </p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-4 space-y-4">
-                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+                    <div class="card-soothing rounded-2xl p-5 space-y-4">
                         <div class="space-y-1">
-                            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Transit Arterial</span>
-                            <div class="text-sm font-semibold text-white">CG Road Corridor (Navrangpura W12)</div>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Transit Corridor</span>
+                            <div class="text-sm font-bold text-slate-900 dark:text-white">CG Road Corridor (Navrangpura W12)</div>
                             <div class="text-[11px] text-slate-500">Ahmedabad Municipal Corporation West Zone</div>
                         </div>
 
-                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
+                        <div class="bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-slate-400">Sampling Rate:</span>
-                                <span class="text-emerald-400 font-mono font-semibold">1 Frame / 3 Seconds</span>
+                                <span class="text-slate-500">Sampling Rate:</span>
+                                <span class="text-teal-700 dark:text-teal-300 font-mono font-semibold">1 Frame / 3 Seconds</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-400">Vision Heuristics:</span>
-                                <span class="text-slate-200 font-semibold">Bituminous Fracture Model</span>
+                                <span class="text-slate-500">Vision Model:</span>
+                                <span class="text-slate-800 dark:text-slate-200 font-semibold">Bituminous Fracture Detection</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-400">Auto-File Policy:</span>
-                                <span class="text-slate-200 font-semibold">Critical Cavity (>85% conf)</span>
+                                <span class="text-slate-500">Auto-File Policy:</span>
+                                <span class="text-slate-800 dark:text-slate-200 font-semibold">Critical Cavity (&gt;85% conf)</span>
                             </div>
                         </div>
 
+                        <!-- Capsule Scan Button (INV-UI-01) -->
                         <button type="button" id="btn-start-video-scan"
-                                class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-amber-500/20 active:scale-98 transition flex items-center justify-center gap-2">
-                            <i data-lucide="play-circle" class="w-4 h-4 fill-slate-950"></i>
-                            Execute Road Video Inspection
+                                class="btn-capsule w-full min-h-[48px] bg-amber-700 hover:bg-amber-800 text-white font-bold text-sm tracking-wide shadow-xs active:scale-98 transition flex items-center justify-center gap-2">
+                            <i data-lucide="play-circle" class="w-4 h-4"></i>
+                            <span>Execute Road Video Inspection</span>
                         </button>
 
-                        <div id="video-scan-summary" class="hidden bg-slate-950/80 p-3.5 rounded-xl border border-amber-500/30 text-xs space-y-2">
-                            <div class="font-bold text-amber-400 flex items-center gap-1.5">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                        <div id="video-scan-summary" class="hidden bg-amber-50 dark:bg-amber-950/40 p-4 rounded-xl border border-amber-300 dark:border-amber-800/60 text-xs space-y-2">
+                            <div class="font-bold text-amber-800 dark:text-amber-200 flex items-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-amber-600"></i>
                                 Corridor Inspection Completed
                             </div>
-                            <div class="text-slate-300" id="video-summary-text">
+                            <div class="text-slate-700 dark:text-slate-300" id="video-summary-text">
                                 Processed 5 frames. Detected 2 road craters. Automatically filed 2 complaint tickets with AMC.
                             </div>
                         </div>
@@ -518,17 +877,17 @@
                 </div>
 
                 <div class="lg:col-span-8 space-y-4">
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-2xl">
+                    <div class="card-soothing rounded-2xl p-5 space-y-4">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                <i data-lucide="map" class="w-4 h-4 text-amber-400"></i>
-                                Geo-Tagged Road Telemetry & Detections
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="map" class="w-4 h-4 text-amber-600"></i>
+                                Geo-Tagged Road Telemetry &amp; Detections
                             </h3>
-                            <span class="text-[10px] text-slate-400 font-mono">Sampling: 0s · 3s · 6s · 9s · 12s</span>
+                            <span class="text-[11px] text-slate-500 font-mono">Sampling: 0s · 3s · 6s · 9s · 12s</span>
                         </div>
 
                         <div id="video-frames-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="p-6 text-center text-xs text-slate-500 col-span-2">
+                            <div class="p-6 text-center text-xs text-slate-400 col-span-2">
                                 Click "Execute Road Video Inspection" to stream the frames and detect road hazards.
                             </div>
                         </div>
@@ -539,45 +898,46 @@
 
         <!-- TAB 4: AMC MUNICIPAL LEDGER -->
         <section id="tab-ledger" class="tab-pane hidden space-y-6">
-            <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 p-6 shadow-2xl">
+            <div class="rounded-3xl bg-gradient-to-r from-teal-800 via-teal-700 to-indigo-900 text-white p-6 sm:p-8 shadow-sm">
                 <div class="max-w-3xl space-y-2">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
-                        <i data-lucide="database" class="w-3 h-3"></i>
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-teal-100 text-xs font-medium">
+                        <i data-lucide="database" class="w-3.5 h-3.5"></i>
                         Municipal Database Registry
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
                         Ahmedabad Municipal Corporation Active Ledger
                     </h2>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Official local mock database storing citizen complaints, ward boundaries, department SLAs, and audit histories.
+                    <p class="text-sm text-teal-100/90 leading-relaxed font-normal">
+                        Official local database storing citizen complaints, assigned ward officers, contact phones, department SLAs, and audit histories.
                     </p>
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-                <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
-                        Complaints Registry
+            <div class="card-soothing rounded-2xl overflow-hidden">
+                <div class="p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4 text-teal-700 dark:text-teal-400"></i>
+                        Complaints Registry &amp; Ward Routing
                     </span>
-                    <button id="btn-refresh-ledger" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition flex items-center gap-1">
-                        <i data-lucide="refresh-cw" class="w-3 h-3 text-indigo-400"></i> Refresh
+                    <button id="btn-refresh-ledger" class="btn-capsule min-h-[36px] px-3.5 py-1 text-xs bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
+                        <i data-lucide="refresh-cw" class="w-3 h-3 text-teal-700 dark:text-teal-400"></i> Refresh
                     </button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 font-mono uppercase text-[10px]">
+                        <thead class="bg-slate-100/80 dark:bg-slate-900 text-slate-500 uppercase text-[10px] font-semibold tracking-wider border-b border-slate-200 dark:border-slate-800">
                             <tr>
-                                <th class="p-3">Tracking ID</th>
-                                <th class="p-3">Issue</th>
-                                <th class="p-3">Ward & Zone</th>
-                                <th class="p-3">Department</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Filed At</th>
-                                <th class="p-3">Action</th>
+                                <th class="p-3.5">Tracking ID</th>
+                                <th class="p-3.5">Issue</th>
+                                <th class="p-3.5">Ward &amp; Zone</th>
+                                <th class="p-3.5">Ward Officer</th>
+                                <th class="p-3.5">Department</th>
+                                <th class="p-3.5">Status</th>
+                                <th class="p-3.5">Filed At</th>
+                                <th class="p-3.5">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="ledger-table-body" class="divide-y divide-slate-800 font-mono">
+                        <tbody id="ledger-table-body" class="divide-y divide-slate-200 dark:divide-slate-800 font-sans">
                         </tbody>
                     </table>
                 </div>
@@ -586,17 +946,75 @@
 
     </main>
 
-    <footer class="bg-slate-950 border-t border-slate-800 px-4 py-4 text-center text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div>
-                NagrikAMC · Autonomous Civic Complaint Agent for Hack2Skill Track 01 · Dhruv Patel
+    <!-- Global Ward Directory & Emergency Helplines Modal -->
+    <div id="modal-ward-directory" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="card-soothing max-w-3xl w-full rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-xs">
+                        <i data-lucide="phone-call" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">AMC Civic Directory &amp; Ward Officers</h3>
+                        <p class="text-xs text-slate-500">Official Municipal Contacts for Ahmedabad Municipal Corporation</p>
+                    </div>
+                </div>
+                <button id="btn-close-directory-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-full transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
-            <div class="flex items-center gap-4 text-[11px] text-slate-400">
+
+            <!-- 24x7 Helplines Strip -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="bg-teal-50 dark:bg-teal-950/60 p-3 rounded-xl border border-teal-200 dark:border-teal-800">
+                    <div class="text-[10px] text-teal-800 dark:text-teal-300 font-bold uppercase">24x7 Civic Helpline</div>
+                    <a href="tel:155303" class="text-sm font-bold text-slate-900 dark:text-white hover:text-teal-700 block mt-0.5">155303 (Toll-Free)</a>
+                    <div class="text-[10px] text-slate-500">All Civic Grievances</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <div class="text-[10px] text-slate-500 font-bold uppercase">Central Control Room</div>
+                    <a href="tel:+917925391811" class="text-sm font-bold text-slate-900 dark:text-white hover:text-teal-700 block mt-0.5">+91-79-2539-1811</a>
+                    <div class="text-[10px] text-slate-500">Danapith HQ</div>
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-950/60 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                    <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold uppercase">WhatsApp Grievance Cell</div>
+                    <a href="https://wa.me/919978322880" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-slate-900 dark:text-white hover:text-emerald-700 block mt-0.5">+91-99783-22880</a>
+                    <div class="text-[10px] text-slate-500">Automated Bot &amp; Agent</div>
+                </div>
+            </div>
+
+            <!-- Ward Officer Directory List -->
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Registered Ward Officers &amp; Offices</h4>
+                <div id="directory-ward-list" class="space-y-2.5">
+                    <!-- Populated dynamically via app.js from /api/wards -->
+                    <div class="text-xs text-slate-400">Loading municipal ward contacts...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification for 1-Click Copy and Alerts -->
+    <div id="notification-toast" class="card-soothing px-4 py-3 rounded-2xl border border-teal-200 dark:border-teal-800 shadow-lg text-xs font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <i data-lucide="check-circle" class="w-4 h-4 text-teal-600"></i>
+        <span id="toast-message">Copied to clipboard</span>
+    </div>
+
+    <!-- Calming, Dignified Civic Footer -->
+    <footer class="bg-white dark:bg-[#0c1210] border-t border-slate-200 dark:border-slate-800/80 px-4 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-lg bg-teal-700 text-white flex items-center justify-center font-bold text-xs">
+                    <i data-lucide="landmark" class="w-3.5 h-3.5"></i>
+                </div>
+                <span>NagrikAMC · Ahmedabad Municipal Corporation Citizen Care &amp; Ward Resolution</span>
+            </div>
+            <div class="flex items-center gap-4 text-[11px] text-slate-500">
                 <span>Clean Architecture</span>
                 <span>•</span>
-                <span>Zero Third-Party Dependency</span>
+                <span>Toll-Free 155303</span>
                 <span>•</span>
-                <span>Offline Resilient</span>
+                <span>Offline Resilient (INV-MOCK-01)</span>
             </div>
         </div>
     </footer>

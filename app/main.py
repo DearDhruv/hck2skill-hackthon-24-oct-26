@@ -2,7 +2,7 @@ import os
 import re
 import time
 from typing import Optional, List
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +12,7 @@ from app.models.complaint import Complaint, Ward, IssueType
 from app.models.agent_state import AgentResponse
 from app.services.amc_db import AMCDatabaseService
 from app.services.agent_engine import CivicComplaintAgent
+from app.services.chaos_service import ChaosService, FaultType, ChaosException
 
 app = FastAPI(
     title="NagrikAMC / CivicPulse AI",
@@ -30,6 +31,32 @@ app.add_middleware(
 # Initialize Services
 db_service = AMCDatabaseService.get_instance()
 agent_engine = CivicComplaintAgent(db=db_service)
+chaos_service = ChaosService.get_instance()
+
+@app.exception_handler(ChaosException)
+async def handle_chaos_exception(request, exc: ChaosException):
+    if exc.fault_type == FaultType.CORRUPTED_PAYLOAD.value:
+        return Response(
+            content="<<<ERR_AMC_MUNICIPAL_CORRUPT_PAYLOAD_CHUNK_HEX7F_BINARY_MALFORMED_DATA>>>",
+            media_type="application/json",
+            status_code=200
+        )
+    headers = {}
+    if exc.http_status == 429:
+        headers["Retry-After"] = "60"
+    return JSONResponse(
+        status_code=exc.http_status,
+        headers=headers,
+        content={
+            "error": True,
+            "chaosFault": exc.fault_type,
+            "detail": str(exc),
+            "message": str(exc),
+            "subsystem": exc.subsystem,
+            "httpCode": exc.http_status,
+            "details": getattr(exc, "details", {})
+        }
+    )
 
 # Mount static files
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -48,6 +75,13 @@ class FileSampleRequest(BaseModel):
     area: Optional[str] = None
     notes: Optional[str] = None
     issueType: Optional[str] = None
+
+class ChaosToggleRequest(BaseModel):
+    enabled: Optional[bool] = None
+    faultType: Optional[str] = None
+    fault_type: Optional[str] = None
+    timeoutSeconds: Optional[float] = None
+    timeout_seconds: Optional[float] = None
 
 @app.get("/")
 def serve_index():
@@ -85,6 +119,22 @@ def advance_complaint_status(tracking_id: str):
         raise HTTPException(status_code=404, detail=f"Complaint '{tracking_id}' not found.")
     return updated
 
+@app.get("/api/chaos")
+def get_chaos_status():
+    """Returns current chaos status & active fault mode."""
+    return chaos_service.get_status()
+
+@app.post("/api/chaos/toggle")
+def toggle_chaos(req: Optional[ChaosToggleRequest] = None):
+    """Toggle chaos mode on/off and select fault type."""
+    enabled = req.enabled if req else None
+    fault = (req.faultType or req.fault_type) if req else None
+    timeout_sec = (req.timeoutSeconds if (req and req.timeoutSeconds is not None) else (req.timeout_seconds if req else None))
+    try:
+        return chaos_service.toggle(enabled=enabled, fault_type=fault, timeout_seconds=timeout_sec)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @app.post("/api/complaints/file", response_model=AgentResponse)
 async def file_complaint_upload(
     file: Optional[UploadFile] = File(None),
@@ -98,6 +148,15 @@ async def file_complaint_upload(
     Accepts photo (uploaded or sample), performs image analysis, ward/department lookup,
     generates tracking ID, and drafts social media escalation.
     """
+    # Fast intercept for simulated corrupted municipal payload
+    if chaos_service.enabled and chaos_service.active_fault == FaultType.CORRUPTED_PAYLOAD:
+        chaos_service.record_fault(FaultType.CORRUPTED_PAYLOAD, {"endpoint": "/api/complaints/file"})
+        return Response(
+            content="<<<ERR_AMC_MUNICIPAL_CORRUPT_PAYLOAD_CHUNK_HEX7F_BINARY_MALFORMED_DATA>>>",
+            media_type="application/json",
+            status_code=200
+        )
+
     image_bytes = None
     filename = "photo.jpg"
     image_url = None
@@ -154,6 +213,13 @@ def handle_agent_query(req: AgentQueryRequest):
     Agent conversational query handler for status checks:
     e.g. 'what\\'s the status of AMC-2026-000123?' or 'what\\'s the status?'
     """
+    if chaos_service.enabled and chaos_service.active_fault == FaultType.CORRUPTED_PAYLOAD:
+        chaos_service.record_fault(FaultType.CORRUPTED_PAYLOAD, {"endpoint": "/api/agent/query"})
+        return Response(
+            content="<<<ERR_AMC_MUNICIPAL_CORRUPT_PAYLOAD_CHUNK_HEX7F_BINARY_MALFORMED_DATA>>>",
+            media_type="application/json",
+            status_code=200
+        )
     return agent_engine.process_status_query(req.query)
 
 @app.post("/api/video/scan")

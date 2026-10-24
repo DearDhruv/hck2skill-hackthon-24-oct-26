@@ -1,6 +1,6 @@
 import os
 import pytest
-from app.models.complaint import IssueType, ComplaintStatus
+from app.models.complaint import IssueType, ComplaintStatus, Complaint
 from app.services.amc_db import AMCDatabaseService
 from app.services.vision_service import VisionAnalysisService
 from app.services.social_service import SocialEscalationService
@@ -255,3 +255,34 @@ def test_video_pothole_scanner_stretch_goal(civic_agent):
 
     for det in scan_report["detections"]:
         assert det["frameImageUrl"] is not None
+
+
+def test_authority_enrichment_edge_cases(amc_db):
+    """
+    Edge case test:
+    1. Malformed or unknown ward ID in complaint dictionary
+    2. Unknown or missing department metadata
+    3. Null fields fallback to defaults without throwing exceptions
+    """
+    raw_complaint = {
+        "trackingId": "AMC-2026-999999",
+        "ward": "W99_NONEXISTENT",
+        "wardName": "Unknown Ward",
+        "zone": "Unknown Zone",
+        "area": "Nowhere",
+        "issue": "pothole",
+        "department": "Exotic Mystery Department",
+        "status": "Assigned",
+        "priority": "Low",
+        "description": "Boundary edge case test",
+        "filedAt": "2026-10-24T18:00:00+05:30"
+    }
+    enriched = amc_db._enrich_complaint_dict(raw_complaint)
+    assert enriched["amcHelpline"] == "155303"
+    assert enriched["tollFreeHelpline"] == "1800-233-2330"
+    assert enriched["whatsappGrievance"] == "+91-99783-22880"
+    # Even if ward object is not found, it shouldn't crash and Complaint validates
+    complaint_model = Complaint(**enriched)
+    assert complaint_model.trackingId == "AMC-2026-999999"
+    assert complaint_model.amcHelpline == "155303"
+
