@@ -1,0 +1,195 @@
+{
+  "wards": [
+    {
+      "id": "W12",
+      "name": "Navrangpura",
+      "zone": "West",
+      "areas": ["Navrangpura", "Stadium", "CG Road", "Law Garden", "Gujarat University", "Mithakhali"],
+      "officeAddress": "AMC West Zone Office, Usmanpura, Ahmedabad - 380013",
+      "wardOfficer": "Shri Arvind Trivedi",
+      "contactPhone": "+91-79-2755-1201",
+      "coordinates": { "lat": 23.0375, "lng": 72.5583 }
+    },
+    {
+      "id": "W27",
+      "name": "Maninagar",
+      "zone": "South",
+      "areas": ["Maninagar", "Kankaria", "Jawahar Chowk", "Rambaug", "Bhairavnath", "Pushpakunj"],
+      "officeAddress": "AMC South Zone Office, Rambaug, Maninagar, Ahmedabad - 380008",
+      "wardOfficer": "Smt. Bhavna Solanki",
+      "contactPhone": "+91-79-2546-4301",
+      "coordinates": { "lat": 22.9978, "lng": 72.6033 }
+    },
+    {
+      "id": "W08",
+      "name": "Bodakdev",
+      "zone": "North West",
+      "areas": ["Bodakdev", "Judges Bungalow", "Vastrapur", "SG Highway", "Thaltej", "Sindhu Bhavan"],
+      "officeAddress": "AMC North West Zone Office, Bodakdev, Ahmedabad - 380054",
+      "wardOfficer": "Shri Sanjay Vaghela",
+      "contactPhone": "+91-79-2685-8801",
+      "coordinates": { "lat": 23.0421, "lng": 72.5117 }
+    },
+    {
+      "id": "W15",
+      "name": "Paldi",
+      "zone": "West",
+      "areas": ["Paldi", "Ellisbridge", "Kocharab", "Mahalaxmi", "Anjali", "Vasna"],
+      "officeAddress": "AMC Paldi Civic Center, Near Sanskar Kendra, Ahmedabad - 380007",
+      "wardOfficer": "Shri Ketan Joshi",
+      "contactPhone": "+91-79-2657-9911",
+      "coordinates": { "lat": 23.0132, "lng": 72.5627 }
+    },
+    {
+      "id": "W04",
+      "name": "Chandkheda",
+      "zone": "West",
+      "areas": ["Chandkheda", "Motera", "Sabarmati", "D-Cabin", "Narendra Modi Stadium"],
+      "officeAddress": "AMC Chandkheda Ward Office, Chandkheda, Ahmedabad - 382424",
+      "wardOfficer": "Shri Nilesh Parmar",
+      "contactPhone": "+91-79-2750-2211",
+      "coordinates": { "lat": 23.1118, "lng": 72.5855 }
+    }
+  ],
+  "departments": {
+    "pothole": "Roads & Buildings",
+    "garbage": "Solid Waste Management",
+    "streetlight": "Light Department",
+    "waterlogging": "Storm Water Drainage"
+  },
+  "departmentMetadata": {
+    "Roads & Buildings": {
+      "code": "R&B",
+      "slaHours": 24,
+      "leadEngineer": "Er. Rajesh Dave",
+      "hotline": "+91-79-2755-1234",
+      "escalationEmail": "roads@ahmedabadcity.gov.in",
+      "socialHandle": "@AMCRoads"
+    },
+    "Solid Waste Management": {
+      "code": "SWM",
+      "slaHours": 12,
+      "leadEngineer": "Er. Minaxi Patel",
+      "hotline": "+91-79-2755-5678",
+      "escalationEmail": "cleanliness@ahmedabadcity.gov.in",
+      "socialHandle": "@AMCSolidWaste"
+    },
+    "Light Department": {
+      "code": "LIGHT",
+      "slaHours": 8,
+      "leadEngineer": "Er. Chirag Shah",
+      "hotline": "+91-79-2755-9012",
+      "escalationEmail": "lighting@ahmedabadcity.gov.in",
+      "socialHandle": "@AMCLight"
+    },
+    "Storm Water Drainage": {
+      "code": "DRAIN",
+      "slaHours": 6,
+      "leadEngineer": "Er. Hiren Mehta",
+      "hotline": "+91-79-2755-3456",
+      "escalationEmail": "drainage@ahmedabadcity.gov.in",
+      "socialHandle": "@AMCDrainage"
+    }
+  },
+  "complaints": [
+    {
+      "trackingId": "AMC-2026-000123",
+      "ward": "W12",
+      "wardName": "Navrangpura",
+      "zone": "West",
+      "area": "Stadium",
+      "issue": "pothole",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "priority": "High",
+      "description": "Deep asphalt crater on Stadium road causing vehicular congestion and two-wheeler skid hazards.",
+      "imageUrl": "/static/samples/pothole_cg_road.jpg",
+      "filedAt": "2026-10-24T17:20:00+05:30",
+      "expectedSlaAt": "2026-10-25T17:20:00+05:30",
+      "assignedTo": "Er. Rajesh Dave (Sub-Divisional Roads Officer)",
+      "timeline": [
+        {
+          "status": "Submitted",
+          "timestamp": "2026-10-24T17:20:00+05:30",
+          "note": "Complaint filed via CivicPulse AI Agent. Auto-assigned to Ward W12."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-10-24T17:22:15+05:30",
+          "note": "Assigned to Ward W12 Road Maintenance Unit 3. Field inspection scheduled."
+        }
+      ]
+    },
+    {
+      "trackingId": "AMC-2026-000124",
+      "ward": "W27",
+      "wardName": "Maninagar",
+      "zone": "South",
+      "area": "Kankaria",
+      "issue": "garbage",
+      "department": "Solid Waste Management",
+      "status": "In Progress",
+      "priority": "High",
+      "description": "Commercial waste container overflowing near Kankaria Gate 3. Stray animal nuisance.",
+      "imageUrl": "/static/samples/garbage_overflow_kankaria.jpg",
+      "filedAt": "2026-10-24T15:10:00+05:30",
+      "expectedSlaAt": "2026-10-25T03:10:00+05:30",
+      "assignedTo": "Er. Minaxi Patel (Sanitation Inspector)",
+      "timeline": [
+        {
+          "status": "Submitted",
+          "timestamp": "2026-10-24T15:10:00+05:30",
+          "note": "Complaint registered with geolocation near Kankaria Lake."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-10-24T15:12:00+05:30",
+          "note": "Work order dispatched to South Zone Waste Tipper Fleet."
+        },
+        {
+          "status": "In Progress",
+          "timestamp": "2026-10-24T15:45:00+05:30",
+          "note": "Compactor truck en route to location. Sweepers deployed."
+        }
+      ]
+    },
+    {
+      "trackingId": "AMC-2026-000125",
+      "ward": "W08",
+      "wardName": "Bodakdev",
+      "zone": "North West",
+      "area": "Vastrapur",
+      "issue": "streetlight",
+      "department": "Light Department",
+      "status": "Resolved",
+      "priority": "Medium",
+      "description": "Twin LED fixture non-functional on Vastrapur lake periphery road.",
+      "imageUrl": "/static/samples/broken_streetlight_vastrapur.jpg",
+      "filedAt": "2026-10-24T11:00:00+05:30",
+      "expectedSlaAt": "2026-10-24T19:00:00+05:30",
+      "assignedTo": "Er. Chirag Shah (Electrical Engineer)",
+      "timeline": [
+        {
+          "status": "Submitted",
+          "timestamp": "2026-10-24T11:00:00+05:30",
+          "note": "Citizen filed night hazard report via AI."
+        },
+        {
+          "status": "Assigned",
+          "timestamp": "2026-10-24T11:05:00+05:30",
+          "note": "Electrical gang #4 alerted for pole #VTP-204."
+        },
+        {
+          "status": "In Progress",
+          "timestamp": "2026-10-24T12:30:00+05:30",
+          "note": "Hydraulic ladder vehicle on site. Driver replaced."
+        },
+        {
+          "status": "Resolved",
+          "timestamp": "2026-10-24T13:40:00+05:30",
+          "note": "Repaired and verified illuminated. Citizen notified."
+        }
+      ]
+    }
+  ]
+}

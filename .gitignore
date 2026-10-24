@@ -18,3 +18,13 @@ build/
 local.properties
 *.hprof
 *.log
+
+# Python & Runtime
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+app/data/amc_active_db.json
+app/static/uploads/*
+!app/static/uploads/.gitkeep

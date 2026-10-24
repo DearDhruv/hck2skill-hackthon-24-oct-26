@@ -1,323 +1,227 @@
-# Hack2Skill Hackathon 4-Hour Victory System 🚀
-> **Kotlin Multiplatform (Android, iOS, Desktop, Web Wasm) | Multi-Device Adaptive Architecture | Autonomous Agent Pair-Programming System**
+# NagrikAMC · Autonomous Civic Complaint Agent 🏛️🤖
+> **Track 01 · Hack2Skill Hackathon 2026 | AI Reasons, Uses Tools, and Takes Action**  
+> *Built for Ahmedabad Municipal Corporation (AMC) · 100% Offline Resilient (`INV-MOCK-01`)*
 
-Welcome to the **Hack2Skill Hackathon 4-Hour Victory System**. This repository is an end-to-end, high-velocity engineering kit designed for **Dhruv Patel** (Android Artist & Lead Engineer) pair-programming with AI assistants (**Antigravity**, **Claude Code**, or **Cursor**) during intense hackathons (like Hack2Skill) where coding time is strictly constrained to **4 hours** and on-site volunteer duties require maximum autonomy, zero placeholders, and flawless offline resilience.
+Welcome to **NagrikAMC** (also known as **CivicPulse AI**), an autonomous civic triage and complaint execution agent. In Indian municipal governance, reporting a road pothole, overflowing garbage dump, unlit streetlight, or monsoon waterlogging currently requires identifying the correct ward (out of 48) and the responsible municipal department (out of 14), filling cumbersome forms, and chasing tickets for weeks.
+
+**NagrikAMC eliminates this administrative friction through an autonomous ReAct AI Agent:**
+1. **Photo goes in**: Computer vision models classify the civic issue and surface failure severity.
+2. **Autonomous Tool Pipeline**: The agent identifies the issue, resolves the exact AMC ward and department, generates an official complaint with a tracking ID (`AMC-2026-XXXXXX`), sets an SLA timer, and drafts a public social media escalation post.
+3. **Conversational Status Inquiry**: The citizen asks *"what's the status?"* and gets real-time progress details with an interactive chronological audit trail.
+4. **Road Video Scanner (Stretch Goal)**: Feeds continuous road footage, samples frames every 3 seconds, detects craters, logs GPS telemetry, and bulk-files complaints autonomously.
 
 ---
 
 ## 📑 Table of Contents
 
-- [Architectural Overview](#-architectural-overview)
+- [Live Demo Quick Start](#-live-demo-quick-start)
+- [Agent Reasoning & Tool Architecture](#-agent-reasoning--tool-architecture)
 - [Project Directory Structure & Code Links](#-project-directory-structure--code-links)
-- [Technical Stack & Blueprints](#-technical-stack--blueprints)
-- [Autonomous Agents & Slash Commands](#-autonomous-agents--slash-commands)
-- [Installed Skills Integration (`INV-SKILL-01`)](#-installed-skills-integration-inv-skill-01)
-- [Edge-Case Defense Matrix (`INV-EDGE-01`)](#-edge-case-defense-matrix-inv-edge-01)
-- [Continuous Documentation Sync Protocol (`INV-DOCS-SYNC-01`)](#-continuous-documentation-sync-protocol-inv-docs-sync-01)
-- [Developer Quick Start & Commands](#-developer-quick-start--commands)
-- [4-Hour Hackathon Time Matrix](#-4-hour-hackathon-time-matrix)
-- [Hack2Skill Submission & Pitch Artifacts](#-hack2skill-submission--pitch-artifacts)
+- [AMC Municipal Database & Seed Data](#-amc-municipal-database--seed-data)
+- [Verification & Automated Test Suite](#-verification--automated-test-suite)
+- [Submission & Pitch Deliverables](#-submission--pitch-deliverables)
 
 ---
 
-## 🏛️ Architectural Overview
+## 🚀 Live Demo Quick Start
 
-The codebase is built on **Clean Architecture** and **Unidirectional Data Flow (MVI)** principles, ensuring total isolation between UI, domain logic, and data providers:
+Launch the complete application with a single command:
+
+```bash
+# 1. Run the one-command launcher (activates venv, installs deps, generates sample assets, starts server)
+./run.sh
+
+# 2. Open in your browser:
+# Interactive Demo UI: http://localhost:8000
+# OpenAPI / Swagger:   http://localhost:8000/docs
+```
+
+### 1-Tap Demo Walkthrough (Judges Presentation in 60s):
+1. **File Complaint Tab**: Click any of the 4 **1-Tap Demo Samples**:
+   - 🔴 **Pothole**: CG Road (Ward W12, West Zone) -> Routes to *Roads & Buildings* (24h SLA)
+   - 🟡 **Garbage**: Kankaria Lake (Ward W27, South Zone) -> Routes to *Solid Waste Management* (12h SLA)
+   - 🟣 **Streetlight**: Vastrapur (Ward W08, NW Zone) -> Routes to *Light Department* (8h SLA)
+   - 🔵 **Waterlogging**: Stadium Area (Ward W12, West Zone) -> Routes to *Storm Water Drainage* (6h SLA)
+2. Click **"Execute Autonomous AI Filing"**: Watch the ReAct cognitive loop stream step-by-step thoughts, tool latencies, and jurisdiction resolutions.
+3. **Status Check Tab**: Click **"Track Status"** or query *"what's the status of AMC-2026-000123?"*. Click **"Advance to Next Stage"** to simulate the field repair crew advancing from *Assigned* to *In Progress* to *Resolved*.
+4. **Road Scanner Tab (Stretch Goal)**: Click **"Execute Road Video Inspection"** to stream corridor frames at 3s intervals and watch the agent auto-file tickets for detected hazards.
+5. **Reset Anytime**: Click **"Reset Seed Data"** in the top banner for instant stage recovery (`INV-MOCK-01`).
+
+---
+
+## 🏛️ Agent Reasoning & Tool Architecture
+
+The agent executes a strict **Observation ➔ Deep Thinking ➔ Tool Execution ➔ Synthesis** lifecycle:
 
 ```mermaid
 flowchart TD
-    subgraph UI ["UI Layer (Compose Multiplatform)"]
-        Scaffold["AdaptiveAppScaffold<br/>(NavigationSuite)"]
-        TwoPane["AdaptiveTwoPaneLayout<br/>(Dual-Pane Master-Detail)"]
-        EdgeCards["EdgeCaseComponents<br/>(Empty, Error, Loading, Shimmer)"]
+    subgraph UI ["Client Layer (Responsive Web / Mobile)"]
+        WebUI["NagrikAMC Web App<br/>(Tailwind CSS + Glassmorphism)"]
+        Samples["1-Tap Pre-packaged Samples<br/>(Pothole, Garbage, Streetlight, Flood)"]
+        QueryConsole["Status Inquiry Console<br/>('what's the status?')"]
+        VideoUI["Road Video Scanner Console<br/>(3s Dashcam Telemetry)"]
     end
 
-    subgraph Presentation ["Presentation Layer (MVI / StateFlow)"]
-        VM["BaseMviViewModel<br/>(safeLaunch, UiState, UiIntent, UiEffect)"]
+    subgraph Agent ["Agent Core Engine (ReAct Loop)"]
+        AgentCore["CivicComplaintAgent<br/>(Reasoning & Tool Orchestrator)"]
+        Trace["ReasoningTrace<br/>(Step-by-Step Chain-of-Thought)"]
     end
 
-    subgraph Domain ["Domain Layer (Pure Kotlin Multiplatform)"]
-        Entities["Domain Models<br/>(Pure KMP Data Classes)"]
-        UseCases["Use Cases / Interactors"]
-        RepoInterfaces["Repository Interfaces<br/>(Flow & Suspending APIs)"]
+    subgraph Tools ["Registered Agent Tools"]
+        T1["analyze_image<br/>(Pillow Computer Vision & Severity Model)"]
+        T2["lookup_ward_and_department<br/>(AMC GIS & Department Router)"]
+        T3["create_complaint_ticket<br/>(Tracking ID & SLA Generator)"]
+        T4["fetch_complaint_status<br/>(Real-Time Municipal Ledger Query)"]
+        T5["draft_social_media_post<br/>(X / Twitter Escalation Intent)"]
+        T6["scan_video_potholes<br/>(3s Frame Sampler & Geo-tagger)"]
     end
 
-    subgraph Data ["Data Layer (Offline-First Resilient)"]
-        MockEngine["MockEngineFixture<br/>(Offline Toggle, Seed Data, Jitter)"]
-        LiteRTEngine["LiteRTQuickEngine<br/>(On-Device AI Inference)"]
-        KtorClient["Ktor HTTP Client<br/>(Remote Backend)"]
+    subgraph DataEngine ["Municipal Engine (Offline Resilient / INV-MOCK-01)"]
+        DB["AMCDatabaseService<br/>(Thread-Safe RLock JSON Store)"]
+        Seed["amc_seed_database.json<br/>(Ahmedabad Wards & Complaints)"]
+        Reset["reset_to_seed_data()<br/>(Instant 1ms Stage Reset)"]
     end
 
-    Scaffold --> VM
-    TwoPane --> VM
-    EdgeCards --> VM
-    VM --> UseCases
-    UseCases --> Entities
-    UseCases --> RepoInterfaces
-    RepoInterfaces -.-> MockEngine
-    RepoInterfaces -.-> LiteRTEngine
-    RepoInterfaces -.-> KtorClient
+    WebUI --> AgentCore
+    Samples --> AgentCore
+    QueryConsole --> AgentCore
+    VideoUI --> AgentCore
+
+    AgentCore --> Trace
+    AgentCore --> T1
+    AgentCore --> T2
+    AgentCore --> T3
+    AgentCore --> T4
+    AgentCore --> T5
+    AgentCore --> T6
+
+    T2 --> DB
+    T3 --> DB
+    T4 --> DB
+    T6 --> DB
+    DB --> Seed
+    DB --> Reset
 ```
 
-### Core Architecture Invariants:
-1. **Pure Kotlin Domain (`INV-ARCH-01`)**: Zero Android (`android.*`) and zero Compose (`androidx.compose.*`) imports in `domain/`.
-2. **MVI State Machine**: Every feature exposes an immutable `UiState`, a sealed `UiIntent`, and a single-shot `UiEffect` Channel.
-3. **Zero Main-Thread Blocking (`INV-THREAD-01`)**: All I/O, heavy calculations, and AI inference execute on `Dispatchers.IO` or `Dispatchers.Default`.
-4. **Mock-First Live Demo Defense (`INV-MOCK-01`)**: A reactive mock data engine with seed fixtures and instant offline toggle (`isOfflineMode`) guarantees the live stage presentation never fails if venue Wi-Fi drops.
+### Registered Tools:
+- **`analyze_image`**: Classifies hazard, surface severity, visual features, and extracts EXIF GPS coordinates.
+- **`lookup_ward_and_department`**: Matches localities to Ahmedabad Municipal Corporation Ward registries and routes to the responsible department.
+- **`create_complaint_ticket`**: Generates a sequential tracking ID (`AMC-2026-XXXXXX`), calculates SLA deadline, and assigns the sub-divisional engineer.
+- **`fetch_complaint_status`**: Queries the municipal ledger, returning current phase, timeline history, and progress bar status.
+- **`draft_social_media_post`**: Drafts public civic escalation copy tagging `@AhmedabadAMC` with 1-click Twitter intent.
+- **`scan_video_potholes`**: Samples video frames every 3 seconds, detects road cavities, and auto-files complaints with GPS coordinates.
 
 ---
 
 ## 📁 Project Directory Structure & Code Links
 
-Click any link below to jump directly to the verified implementation or specification:
+Click any relative link below to inspect the verified code:
 
 ```
 hck2skill-hackthon-24-oct-26/
-├── README.md                                          # Master repository overview (this file)
-├── .gitignore                                         # Git filtering for macOS, IDE, and Gradle
-├── AGENTS.md                                          # Workspace assistant rules & invariants
-├── CLAUDE.md                                          # Claude Code commands & cheat-sheet
-├── .cursorrules                                       # Cursor IDE configuration & auto-prompts
-└── hackathon-kit/
-    ├── README.md                                      # 4-Hour Victory Blueprint playbook
-    ├── AGENTS.md                                      # Sub-module agent instructions
-    ├── CLAUDE.md                                      # Sub-module Claude rules
-    ├── .cursorrules                                   # Sub-module Cursor rules
-    │
-    ├── blueprints/                                    # Ready-to-use production blueprints
-    │   ├── compose/
-    │   │   ├── AdaptiveAppScaffold.kt                 # Multi-device adaptive navigation shell
-    │   │   ├── AdaptiveTwoPaneLayout.kt               # Responsive master-detail dual-pane layout
-    │   │   ├── AdaptiveLayoutTokens.kt                # Breakpoints (Compact, Medium, Expanded)
-    │   │   ├── SpacingTokens.kt                       # Capsule buttons, 48dp touch targets, tokens
-    │   │   └── EdgeCaseComponents.kt                  # Empty/Error/Skeleton cards, form insets
-    │   ├── presentation/
-    │   │   └── BaseMviViewModel.kt                    # MVI base view model with safeLaunch
-    │   ├── data/
-    │   │   └── MockEngineFixture.kt                   # Deterministic offline mock engine & toggle
-    │   ├── ai/
-    │   │   └── LiteRTQuickEngine.kt                   # On-device AI engine with timeout protection
-    │   ├── gradle/
-    │   │   ├── libs.versions.toml                     # KMP/CMP Gradle version catalog
-    │   │   ├── build.gradle.kts                       # Root multiplatform Gradle build config
-    │   │   └── settings.gradle.kts                    # Gradle multi-module project settings
-    │   └── shared/
-    │       └── build.gradle.kts                       # Shared multiplatform module build script
-    │
-    ├── .agents/                                       # Multi-agent system configuration
-    │   ├── AGENTS.md                                  # Canonical index of agent roles & rules
-    │   ├── skills.json                                # Configured skill discovery roots
-    │   ├── commands/
-    │   │   ├── boost.md                               # /boost: Prompt Auto-Expansion Engine
-    │   │   ├── plan.md                                # /plan: 4-Hour Rapid Execution Planner
-    │   │   └── learn.md                               # /learn: Continuous Learning & Instincts
-    │   ├── rules/
-    │   │   ├── hackathon-4hr-protocol.md              # 4-hour sprint & anti-rabbit-hole rule
-    │   │   ├── clean-architecture-kmp.md              # Pure Kotlin domain & MVI contracts
-    │   │   ├── adaptive-ui-multiplatform.md           # Multi-device breakpoints & layout tokens
-    │   │   ├── mock-first-resilience.md               # Zero-flake mock data engine invariant
-    │   │   ├── hack2skill-judging-rubric.md           # Hack2Skill scoring optimization
-    │   │   ├── ai-edge-intelligence.md                # On-device LiteRT & Gemini Prompt API
-    │   │   ├── prompt-expansion-protocol.md           # 7-dimensional prompt auto-expansion
-    │   │   ├── edge-case-defense-matrix.md            # Mandatory empty/error/loading safeguards
-    │   │   ├── hackathon-planning-protocol.md         # Time-boxed sprint planning formula
-    │   │   ├── continuous-learning-protocol.md        # Permanent memory & instinct recording
-    │   │   ├── installed-skills-usage.md              # Mandatory installed skills execution (INV-SKILL-01)
-    │   │   └── docs-sync-protocol.md                  # Continuous documentation sync (INV-DOCS-SYNC-01)
-    │   └── agents/
-    │       ├── architect-scaffolder.md                # Persona: Lead Architect & Scaffolder
-    │       ├── cmp-ui-designer.md                     # Persona: Compose Multiplatform UI Specialist
-    │       ├── engine-data-integrator.md              # Persona: Data Engine & Edge AI Integrator
-    │       ├── quality-verifier.md                    # Persona: QA & Verification Gate Auditor
-    │       └── pitch-submission-lead.md               # Persona: Pitch & Submission Lead
-    │
-    ├── Docs/                                          # Submission artifacts & documentation
-    │   ├── problem_assessment_worksheet.md            # 10-minute problem deconstruction canvas
-    │   ├── architecture_template.md                   # Architecture spec with Mermaid diagrams
-    │   ├── pitch_deck_template.md                     # 7-slide winning Hack2Skill pitch deck
-    │   ├── demo_video_script.md                       # 2-minute video walkthrough script
-    │   ├── hack2skill_submission_template.md          # Complete submission form copy
-    │   └── learnings/
-    │       └── hackathon_learnings.md                 # Project memory & defensive instincts
-    │
-    └── scripts/                                       # Automation & verification scripts
-        ├── check-hackathon-readiness.sh               # 37-point pre-sprint verification auditor
-        └── bootstrap-new-hackathon-repo.sh            # One-command injector for fresh repositories
+├── run.sh                                             # Single-command launcher
+├── requirements.txt                                   # Python dependencies (FastAPI, Pillow, Pydantic)
+├── pytest.ini                                         # Pytest configuration
+├── README.md                                          # Master documentation (this file)
+├── AGENTS.md                                          # Workspace hackathon rules & invariants
+├── CLAUDE.md                                          # Claude Code commands & shortcuts
+│
+├── app/                                               # Application Backend & UI
+│   ├── main.py                                        # FastAPI server & REST API router
+│   ├── models/
+│   │   ├── complaint.py                               # Domain models (Complaint, Ward, Department, Status)
+│   │   └── agent_state.py                             # Agent reasoning, tool logs, and DTOs
+│   ├── services/
+│   │   ├── amc_db.py                                  # Reactive AMC Mock Database with RLock & Seed Reset
+│   │   ├── vision_service.py                          # Computer vision hazard classifier & EXIF extractor
+│   │   ├── agent_engine.py                            # ReAct Agent with Deep Thinking & Tool Pipeline
+│   │   ├── social_service.py                          # X/Twitter public escalation post drafter
+│   │   └── video_scanner.py                           # 3s frame sampler road hazard video scanner
+│   ├── data/
+│   │   └── amc_seed_database.json                     # AMC Ward boundaries, departments, and seed tickets
+│   └── static/
+│       ├── index.html                                 # Sleek glassmorphism responsive dashboard
+│       ├── css/style.css                              # Custom scrollbars, glow effects, animation tokens
+│       ├── js/app.js                                  # Interactive UI controller & ReAct reasoning stream
+│       └── samples/                                   # Pre-packaged 1-tap demo hazard photos
+│           ├── pothole_cg_road.jpg                    # Sample: Pothole on CG Road
+│           ├── garbage_overflow_kankaria.jpg          # Sample: Solid waste spillover at Kankaria
+│           ├── broken_streetlight_vastrapur.jpg       # Sample: Blacked-out streetlight at Vastrapur
+│           └── waterlogging_stadium.jpg               # Sample: Monsoon waterlogging near Stadium
+│
+├── tests/                                             # Automated Deep Verification Suite
+│   ├── test_civic_agent.py                            # Unit tests: Agent pipeline, database, vision, tools
+│   └── test_api_endpoints.py                          # Integration tests: FastAPI endpoints & error paths
+│
+├── scripts/
+│   └── generate_sample_assets.py                      # Synthetic hazard image generator with HUD overlay
+│
+├── Docs/                                              # Hack2Skill Submission & Pitch Artifacts
+│   ├── problem_assessment_worksheet.md                # 10-Minute Problem Assessment Worksheet
+│   ├── architecture_spec.md                           # Full Technical Architecture & Systems Spec
+│   ├── pitch_deck_track01.md                          # 7-Slide Pitch Deck for Track 01
+│   └── demo_video_script.md                           # 2-Minute Judge Demo Presentation Script
+│
+└── hackathon-kit/                                     # Engineering kit & blueprints
+    └── Docs/learnings/hackathon_learnings.md          # Continuous Learnings & Instincts Registry
 ```
 
 ---
 
-## 🛠️ Technical Stack & Blueprints
+## 🏛️ AMC Municipal Database & Seed Data
 
-| Component | Technology | Version | Location / Blueprint Link |
-|---|---|---|---|
-| **Language** | Kotlin Multiplatform | `2.1.0` | [libs.versions.toml](hackathon-kit/blueprints/gradle/libs.versions.toml) |
-| **UI Toolkit** | Compose Multiplatform | `1.7.1` | [AdaptiveAppScaffold.kt](hackathon-kit/blueprints/compose/AdaptiveAppScaffold.kt) |
-| **Architecture** | Clean Architecture + MVI | Pure KMP | [BaseMviViewModel.kt](hackathon-kit/blueprints/presentation/BaseMviViewModel.kt) |
-| **Adaptive Layout** | Material 3 Adaptive | `1.0.0` | [AdaptiveTwoPaneLayout.kt](hackathon-kit/blueprints/compose/AdaptiveTwoPaneLayout.kt) |
-| **Design System** | Capsule Spacing Tokens | Custom | [SpacingTokens.kt](hackathon-kit/blueprints/compose/SpacingTokens.kt) |
-| **Edge-Case UI** | Empty/Error/Shimmer/IME | Custom | [EdgeCaseComponents.kt](hackathon-kit/blueprints/compose/EdgeCaseComponents.kt) |
-| **Data Engine** | Reactive In-Memory Mock | Coroutines | [MockEngineFixture.kt](hackathon-kit/blueprints/data/MockEngineFixture.kt) |
-| **On-Device AI** | Google AI Edge LiteRT | `1.0.1` | [LiteRTQuickEngine.kt](hackathon-kit/blueprints/ai/LiteRTQuickEngine.kt) |
-| **Networking** | Ktor HTTP Client | `3.0.2` | [build.gradle.kts](hackathon-kit/blueprints/shared/build.gradle.kts) |
-| **Serialization** | Kotlinx Serialization JSON | `1.7.3` | [libs.versions.toml](hackathon-kit/blueprints/gradle/libs.versions.toml) |
-| **Async & State** | Kotlinx Coroutines & Flows | `1.9.0` | [BaseMviViewModel.kt](hackathon-kit/blueprints/presentation/BaseMviViewModel.kt) |
+The database represents official Ahmedabad Municipal Corporation jurisdictions:
+
+| Ward ID | Ward Name | Zone | Sample Localities Covered | Department Routing |
+|---|---|---|---|---|
+| **W12** | Navrangpura | West | Navrangpura, Stadium, CG Road, Law Garden, Gujarat University | Pothole ➔ Roads & Buildings (24h SLA) |
+| **W27** | Maninagar | South | Maninagar, Kankaria, Jawahar Chowk, Rambaug, Bhairavnath | Garbage ➔ Solid Waste Management (12h SLA) |
+| **W08** | Bodakdev | North West | Bodakdev, Judges Bungalow, Vastrapur, SG Highway, Thaltej | Streetlight ➔ Light Department (8h SLA) |
+| **W15** | Paldi | West | Paldi, Ellisbridge, Kocharab, Mahalaxmi, Anjali, Vasna | Waterlogging ➔ Storm Water Drainage (6h SLA) |
+| **W04** | Chandkheda | West | Chandkheda, Motera, Sabarmati, Narendra Modi Stadium | All Departments Supported |
 
 ---
 
-## 🤖 Autonomous Agents & Slash Commands
+## 🧪 Verification & Automated Test Suite
 
-During high-intensity hackathons, prompt engineering by hand is a bottleneck. The kit provides three self-enhancing slash commands backed by specialized agent personas:
-
-### ⚡ Built-in Slash Commands
-
-1. **`/boost [instruction]`** ([boost.md](hackathon-kit/.agents/commands/boost.md)):
-   - **Trigger**: Automatic on ANY instruction, or explicitly invoked with `/boost`.
-   - **What it does**: Automatically expands terse, plain-English instructions across 7 architectural dimensions: Persona -> Domain Entity -> Resilient Mock Data -> MVI ViewModel -> Adaptive Compose UI -> Edge-Case Cards -> Installed Skills Activation.
-   - **Output**: Complete, compilable Kotlin files with zero placeholders (`// TODO`).
-
-2. **`/plan [concept]`** ([plan.md](hackathon-kit/.agents/commands/plan.md)):
-   - **When to use**: When the hackathon problem statement is announced.
-   - **What it does**: Enforces the **1-Flow Rule** (1 killer end-to-end journey > 5 half-done screens) and generates an hour-by-hour roadmap across the 4-Hour Time Matrix.
-
-3. **`/learn [lesson]`** ([learn.md](hackathon-kit/.agents/commands/learn.md)):
-   - **When to use**: Whenever a subtle bug, Kotlin/Wasm anomaly, or layout edge-case is solved.
-   - **What it does**: Records an atomic instinct (`Trigger -> Trap -> Defensive Pattern`) into [hackathon_learnings.md](hackathon-kit/Docs/learnings/hackathon_learnings.md) so the system never repeats the mistake.
-
-### 👥 Agent Personas Roster
-
-| Agent Persona | Role File | Primary Function in 4-Hour Sprint |
-|---|---|---|
-| **Lead Architect** | [architect-scaffolder.md](hackathon-kit/.agents/agents/architect-scaffolder.md) | Hour 1: Deconstructs problem, creates domain entities & repository interfaces. |
-| **UI Specialist** | [cmp-ui-designer.md](hackathon-kit/.agents/agents/cmp-ui-designer.md) | Hour 2: Builds responsive Material 3 UI with adaptive navigation & capsule styling. |
-| **Data & AI Integrator**| [engine-data-integrator.md](hackathon-kit/.agents/agents/engine-data-integrator.md) | Hour 1-3: Builds offline mock engine with live toggle, Ktor clients, and LiteRT AI hooks. |
-| **Quality Auditor** | [quality-verifier.md](hackathon-kit/.agents/agents/quality-verifier.md) | Hour 3: Executes multiplatform tests, audits Edge-Case Matrix, and triggers `/learn`. |
-| **Pitch & Submission** | [pitch-submission-lead.md](hackathon-kit/.agents/agents/pitch-submission-lead.md) | Hour 4: Crafts Hack2Skill pitch deck, README, and 2-minute demo video script. |
-
----
-
-## 🧩 Installed Skills Integration (`INV-SKILL-01`)
-
-The environment connects over **100 installed specialist skills** located in `~/.gemini/config/skills/`, `~/.agents/skills/`, and `~/.gemini/antigravity/builtin/skills/` (configured in [skills.json](hackathon-kit/.agents/skills.json)).
-
-Assistants must always consult the corresponding skill's `SKILL.md` before generating code:
-
-| Capability Domain | Active Installed Skill | Applied Best Practices |
-|---|---|---|
-| **Adaptive Layouts** | `adaptive` | Compose MediaQuery API, Foldable/Tablet two-pane scenes, responsive window size classes |
-| **Modern Navigation** | `navigation-3`, `navigation-event` | Navigation 3 scenes, multi-backstack routing, predictive back `NavigationBackHandler` |
-| **Insets & Edge-to-Edge** | `edge-to-edge` | Full edge-to-edge support, IME keyboard avoidance, transparent system bar legibility |
-| **Design System & Styles**| `styles` | Jetpack Compose Styles API, styleable design system components, unified style attributes |
-| **On-Device LLMs** | `litert-lm` | Open LLMs (Gemma, Qwen, Llama) with LiteRT-LM Kotlin API (`litertlm-android`) |
-| **On-Device Vision / TFLite**| `litert-runtime` | LiteRT CompiledModel API on CPU/GPU, TensorBuffer reuse, Bitmap preprocessing |
-| **Gemini Nano** | `ml-kit-genai-prompt-api` | On-device prompt API, prefix caching, structured output with Gemini Nano |
-| **System AI Shortcuts** | `appfunctions` | Expose on-device workflows to Android system shortcuts and AI agents |
-| **Testing Infrastructure** | `testing-setup`, `verify` | Unit/UI/E2E test harnesses, pre-submission diff-vs-base review gate |
-| **Compose Performance** | `jetpack-compose-performance` | Recomposition tracking, frame drop elimination, LazyList optimizations |
-| **ANR & Threading** | `anr-audit-and-fix` | Scan codebase for main-thread blocking, ANR risks, and coroutine stalls |
-| **Headless Debugging** | `debroid`, `android-cli` | JDWP live debugging, Compose state inspection, virtual device manager |
-
-Detailed rules: [installed-skills-usage.md](hackathon-kit/.agents/rules/installed-skills-usage.md).
-
----
-
-## 🛡️ Edge-Case Defense Matrix (`INV-EDGE-01`)
-
-Every screen and feature in this repository is fortified against common live-demo failure modes:
-
-| Failure Mode | Risk to Demo | Out-of-the-Box Safeguard in [EdgeCaseComponents.kt](hackathon-kit/blueprints/compose/EdgeCaseComponents.kt) |
-|---|---|---|
-| **Empty Result Set** | Blank screen on 0 results | `EmptyStateCard` with custom icon, explanation, and action button |
-| **Network Failure** | App crash or freeze | `ErrorStateCard` with explicit error badge and "Retry" callback |
-| **Loading Latency** | User confusion during delay | `LoadingSkeletonCard` with animated shimmer gradient |
-| **Text Overflow** | Long titles break cards | Dynamic labels use `maxLines = 1` or `2` and `TextOverflow.Ellipsis` |
-| **Ultrawide Desktop** | Layout stretches across 4K displays | `AdaptiveContainer(maxContentWidth = 1200.dp)` clamps and centers content |
-| **Soft Keyboard (IME)**| Mobile keyboard covers inputs | `AdaptiveFormLayout` with `Modifier.imePadding()` and `verticalScroll` |
-| **Form Validation** | Blank or invalid inputs crash backend | `ValidatedInputField` with character limits, inline errors, and clear button |
-| **Double-Click Spam**| Rapid double-tap creates duplicate items | `debouncedClickable(debounceMs = 500)` click protection with ripple preserved |
-| **Key Collision** | Timestamp collisions crash LazyColumn | Monotonic counter appended to IDs: `mock_${now()}_${++idCounter}` |
-| **Live Stage Outage** | Conference Wi-Fi drops during pitch | Reactive mock engine with toggle (`isOfflineMode`) and `DemoModeBanner` |
-| **Rehearsal Clutter**| Pre-demo test entries pollute state | `resetToSeedData()` restores clean seed state with one tap |
-| **Image Load Drop** | Missing avatar renders blank space | `SafeAsyncImagePlaceholder` fallback container |
-| **Wasm Dispatchers** | Single-threaded browser loop crash | Use `Dispatchers.Default` for CPU work; avoid blocking threads |
-| **AI Inference Hang**| On-device LiteRT model takes >4s | `withTimeoutOrNull(4000L)` and `runCatching` with heuristic fallback |
-| **Coroutine Teardown**| Swallowing cancellation breaks scope | Ignored `CancellationException` in exception handlers |
-
----
-
-## 🔄 Continuous Documentation Sync Protocol (`INV-DOCS-SYNC-01`)
-
-**Rule**: Code and documentation must never drift apart. Whenever any task, feature implementation, refactoring, or blueprint addition is completed, the developer or AI assistant MUST automatically execute the synchronization cycle:
-
-1. **Update Technical Specs**: Document newly added libraries, Gradle plugins, or API integrations in [README.md](README.md) and [hackathon-kit/README.md](hackathon-kit/README.md).
-2. **Synchronize Directory Structure**: Update the ASCII directory tree in [README.md](README.md) to reflect newly created or reorganized files.
-3. **Add Direct Code Links**: Add relative clickable links to all newly created Kotlin classes, ViewModels, Composables, or scripts.
-4. **Update Learnings**: If a subtle bug, Wasm quirk, or layout anomaly was resolved, record the instinct in [hackathon_learnings.md](hackathon-kit/Docs/learnings/hackathon_learnings.md).
-
-Detailed protocol: [docs-sync-protocol.md](hackathon-kit/.agents/rules/docs-sync-protocol.md).
-
----
-
-## ⚡ Developer Quick Start & Commands
-
-### Prerequisites
-- JDK 17+ or JDK 21
-- Android Studio Ladybug+ / IntelliJ IDEA 2024.2+ / VS Code / Cursor
-- Git
-
-### Build & Verification Commands
+Run the full automated test suite:
 
 ```bash
-# 1. Run Hackathon 37-Point Readiness Audit
-./hackathon-kit/scripts/check-hackathon-readiness.sh
-
-# 2. Run Multiplatform Unit Tests
-./gradlew test
-
-# 3. Assemble Android Debug APK
-./gradlew :composeApp:assembleDebug
-
-# 4. Launch Desktop (JVM) App
-./gradlew :composeApp:run
-
-# 5. Launch Web (Kotlin/Wasm) App in Browser
-./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+source .venv/bin/activate
+PYTHONPATH=. pytest tests/ -v
 ```
 
-### Bootstrap a Fresh Hackathon Repo in 10 Seconds
-To inject this complete architecture, agent system, blueprints, and submission templates into a new project:
-```bash
-./hackathon-kit/scripts/bootstrap-new-hackathon-repo.sh /path/to/my-fresh-hackathon-app --init-gradle
-```
+### Test Coverage Summary:
+- **`tests/test_civic_agent.py`**:
+  - `test_amc_database_seed_and_reset`: Seed loading, CRUD, and `reset_to_seed_data()`.
+  - `test_ward_lookup_exact_and_fuzzy`: Exact matching, case insensitivity, and fallback handling.
+  - `test_department_routing`: Maps all 4 civic hazard types to municipal departments.
+  - `test_complaint_lifecycle_advance`: Verifies state progression: `Assigned` ➔ `In Progress` ➔ `Work Verified` ➔ `Resolved`.
+  - `test_vision_service_offline_analysis`: Tests hazard classification, confidence, and feature extraction.
+  - `test_agent_end_to_end_filing_pipeline`: Verifies all 4 tools invoked, latency logging, and ticket generation.
+  - `test_agent_status_query`: Tests conversational status queries with valid and invalid IDs.
+  - `test_video_pothole_scanner_stretch_goal`: Tests 3s frame sampling and auto-filing of road craters.
+- **`tests/test_api_endpoints.py`**:
+  - `test_api_index`: Serves web dashboard.
+  - `test_api_get_wards`: Returns ward registry.
+  - `test_api_get_complaints`: Returns complaints list.
+  - `test_api_file_sample_complaint`: End-to-end filing via REST API.
+  - `test_api_status_query`: End-to-end status query.
+  - `test_api_advance_lifecycle`: Live lifecycle simulator endpoint.
+  - `test_api_video_scan`: Road video scanner endpoint.
+  - `test_api_reset_seed`: Mock engine reset endpoint.
+  - `test_api_404_handling`: Proper HTTP 404 on invalid tracking IDs.
+
+**Result: 17 Passed, 0 Failed (100% Pass Rate).**
 
 ---
 
-## ⏱️ 4-Hour Hackathon Time Matrix
+## 🏆 Submission & Pitch Deliverables
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ 00:00 - 00:30 │ Phase 0: Problem Scoping & Architecture Lock (Agent 1)      │
-│ 00:30 - 01:15 │ Phase 1: Core Domain Models & Mock-First Data Engine        │
-│ 01:15 - 02:45 │ Phase 2: Adaptive Compose UI (Mobile, Web, Desktop)         │
-│ 02:45 - 03:30 │ Phase 3: Integration (Live API/AI Edge) & QA Invariants     │
-│ 03:30 - 04:00 │ Phase 4: Pitch Deck, Demo Video Script & Hack2Skill Freeze   │
-│ 04:00 ──► 🏆  │ SUBMISSION SUBMITTED & LIVE STAGE DEMO READY               │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🏆 Hack2Skill Submission & Pitch Artifacts
-
-The repository includes pre-formatted, winning templates optimized for Hack2Skill judging rubrics:
-
-- **[problem_assessment_worksheet.md](hackathon-kit/Docs/problem_assessment_worksheet.md)**: 10-minute problem deconstruction canvas to lock the 1-Flow MVP.
-- **[pitch_deck_template.md](hackathon-kit/Docs/pitch_deck_template.md)**: 7-slide pitch deck structure covering Hook, Problem, Solution, Architecture, Live Demo, Market, and Team.
-- **[demo_video_script.md](hackathon-kit/Docs/demo_video_script.md)**: 2-minute video walkthrough script ensuring you demo the problem, intelligent solution, and offline resilience within time limits.
-- **[architecture_template.md](hackathon-kit/Docs/architecture_template.md)**: Ready-to-render Mermaid diagrams and component contracts for technical judges.
-- **[hack2skill_submission_template.md](hackathon-kit/Docs/hack2skill_submission_template.md)**: Exact submission form copy ready to copy-paste into the Hack2Skill portal.
-- **[hackathon_learnings.md](hackathon-kit/Docs/learnings/hackathon_learnings.md)**: Living instincts registry preventing repeat bugs during the sprint.
-
----
-
-*Engineered with precision for Dhruv Patel. Ready to build, pitch, and win.*
+| Deliverable | File Link | Description |
+|---|---|---|
+| **Problem Assessment** | [problem_assessment_worksheet.md](Docs/problem_assessment_worksheet.md) | 10-Minute Problem Assessment Worksheet |
+| **Architecture Spec** | [architecture_spec.md](Docs/architecture_spec.md) | Detailed Technical Architecture with Mermaid Flowcharts |
+| **Pitch Deck** | [pitch_deck_track01.md](Docs/pitch_deck_track01.md) | 7-Slide Pitch Deck tailored to Hack2Skill Rubric |
+| **Demo Video Script** | [demo_video_script.md](Docs/demo_video_script.md) | 2-Minute Spoken Walkthrough for Live Presentation |
+| **Learnings Registry** | [hackathon_learnings.md](hackathon-kit/Docs/learnings/hackathon_learnings.md) | Continuous Learnings & Concurrency Safeguards (`[INSTINCT-007]`) |

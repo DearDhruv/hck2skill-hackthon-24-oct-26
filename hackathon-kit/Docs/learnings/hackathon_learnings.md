@@ -60,6 +60,16 @@ This file records continuous learnings, platform anomalies (Kotlin/Wasm, Compose
 
 ---
 
+### [INSTINCT-007] Re-entrant Locking for Mock Database Singletons
+- **Date / Phase**: Track 01 Civic Complaint Agent / Backend Architecture
+- **Trigger**: Singleton database service initializing files on first `get_instance()` invocation.
+- **The Trap**: Standard `threading.Lock()` in Python is non-reentrant. If `get_instance()` acquires the lock and calls `__init__()`, which internally calls `_ensure_initialized()` trying to acquire the same lock, the application deadlocks silently during module import.
+- **The Defensive Pattern**: Always use `threading.RLock()` for singleton database managers or avoid acquiring locks inside constructors when already holding instance-creation locks.
+- **Agents Impacted**: `engine-data-integrator`, `architect-scaffolder`
+
+
+---
+
 ### [INSTINCT-007] Collision-Proof ID Generation in Mock Fixtures
 - **Date / Phase**: Scaffolding Hardening / Data Layer
 - **Trigger**: Creating multiple mock items in a loop, test, or rapid successive clicks.
