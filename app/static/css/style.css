@@ -1,5 +1,43 @@
 /* Soothing, Eye-Friendly Civic Care Theme */
 
+/* Base Typography Scaling - Readable & Eye-Comfort */
+html {
+    font-size: 17.5px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Elevate small micro-typography to comfortable readable sizes */
+.text-\[10px\],
+.text-\[11px\] {
+    font-size: 0.775rem !important; /* ~13.5px instead of 10px/11px */
+    line-height: 1.15rem !important;
+}
+
+.text-xs {
+    font-size: 0.825rem !important; /* ~14.5px instead of 12px */
+    line-height: 1.25rem !important;
+}
+
+.text-sm {
+    font-size: 0.95rem !important; /* ~16.6px instead of 14px */
+    line-height: 1.45rem !important;
+}
+
+.text-base {
+    font-size: 1.05rem !important; /* ~18.4px instead of 16px */
+    line-height: 1.65rem !important;
+}
+
+/* Form inputs - prevent iOS auto-zoom and maximize legibility */
+input, select, textarea {
+    font-size: 0.95rem !important;
+}
+
 /* Custom Smooth Scrollbars */
 ::-webkit-scrollbar {
     width: 6px;
@@ -60,7 +98,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 0.8125rem;
+    font-size: 0.95rem;
     transition: all 0.2s ease-in-out;
 }
 
