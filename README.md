@@ -12,6 +12,39 @@ Welcome to **NagrikAMC** (also known as **CivicPulse AI**), an autonomous civic 
 
 ---
 
+## 🎯 Hackathon Submission Overview: Vertical, Approach, Logic & Assumptions
+
+> **Comprehensive Submission Document**: See **[`SUBMISSION_README.md`](SUBMISSION_README.md)** for exhaustive technical details.
+
+### 1. Chosen Vertical
+- **Track**: Track 01 · Agents: Civic Complaint Agent (*The AI reasons, uses tools, and takes action*).
+- **Domain**: Smart Civic Governance & Municipal Grievance Redressal for Ahmedabad Municipal Corporation (AMC).
+- **Problem**: Reporting civic hazards (potholes, garbage, broken streetlights, waterlogging) requires navigating 48 wards and 14 departments with cumbersome forms. Most citizens give up before filing.
+- **Solution**: **NagrikAMC** — an autonomous ReAct AI agent transforming photo inputs into fully routed tickets with SLA deadlines, conversational tracking, and authority escalation.
+
+### 2. Approach and Logic
+- **Autonomous Multi-Tool ReAct Pattern**: Cognitive loop using 5 discrete tools: `analyze_civic_image`, `lookup_ward_and_department`, `create_complaint_ticket`, `fetch_complaint_status`, and `draft_social_media_escalation`.
+- **Mock-First Offline Resilience (`INV-MOCK-01`)**: Local ACID JSON database with atomic file replacement (`os.replace`) to prevent database corruption (`INSTINCT-011`). 1-click `reset_to_seed_data()` for judging resets.
+- **Defensive Computer Vision (`INSTINCT-012`)**: Shift-and-clamp coordinate bounds preventing negative bounding box dimensions, and dark asphalt disambiguation preventing false-positive streetlight classifications.
+- **Chaos & Fault Injection Mode (`INV-EDGE-01`)**: Built-in toggle to simulate 6 municipal failure modes (*500 DB Crash, Network Timeout, Rate Limit 429, Corrupted Payload, Ward Dispute, Corrupted Upload*).
+
+### 3. How the Solution Works
+1. **Photo Input**: Citizen uploads a photo (or selects a demo sample) and optionally enters an area name.
+2. **Vision Diagnosis**: Agent classifies hazard type, computes edge fracture energy, severity, and extracts embedded EXIF GPS coordinates.
+3. **Spatial Ward Routing**: Matches typed area aliases or calculates nearest ward centroid from GPS. Maps hazard to responsible department (e.g., Potholes ➔ *Roads & Buildings*).
+4. **Ticket Creation & Authority Enrichment**: Generates `AMC-2026-XXXXXX` with SLA timer and attaches Ward Officer direct phone, AMC 24x7 helpline `155303`, Google Maps office navigation, and WhatsApp desk.
+5. **Conversational Status & Lifecycle**: Citizen asks natural questions (*"status 123?"*); agent reports status and enables field crew progression (`Assigned` ➔ `In Progress` ➔ `Resolved`).
+6. **Stretch Goal (Road Video Scanner)**: Dashcam video footage is sampled at 3-second intervals, detects asphalt craters, logs GPS telemetry, and bulk-files complaints automatically.
+
+### 4. Assumptions Made
+1. **Decoupled Municipal Backend**: Local ACID mock database per hackathon ground rules to avoid third-party API rate limits and venue Wi-Fi outages.
+2. **Ward Spatial Resolution**: 5 anchor AMC wards (Navrangpura, Maninagar, Bodakdev, Paldi, Chandkheda) modeled with centroids and alias dictionaries.
+3. **Offline-First Vision**: Deterministic Pillow convolution heuristics with multimodal text hints for sub-30ms local inference without heavy neural model downloads.
+4. **Dashcam Video Telemetry**: Simulated 3-second keyframe sampling along an urban transit corridor rather than streaming 4K H.264 video.
+5. **Authority Directory**: Contact numbers (`155303`), officer names, and civic center addresses modeled on official AMC public structures.
+
+---
+
 ## 📑 Table of Contents
 
 - [Live Demo Quick Start](#-live-demo-quick-start)
