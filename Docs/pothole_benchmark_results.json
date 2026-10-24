@@ -1,0 +1,354 @@
+[
+  {
+    "imageName": "asphalt_road_multiple_potholes.jpg",
+    "dimensions": "1280x960",
+    "fileSizeBytes": 621692,
+    "fileSizeKb": 607.1,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0101.jpg",
+    "cvLatencyMs": 19.21,
+    "pipelineLatencyMs": 18.58,
+    "classification": "pothole",
+    "confidence": 0.9624,
+    "severity": "Critical",
+    "boundingBox": {
+      "x": 3.1,
+      "y": 21.0,
+      "width": 90.0,
+      "height": 75.0
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 74.5)",
+      "Localized road depression detected at (3.1%, 21.0%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000142",
+      "ward": "W12",
+      "wardName": "Navrangpura",
+      "zone": "West",
+      "area": "CG Road",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Navrangpura Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 CG Road (Ward W12, West Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000142\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_WestZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "bengaluru_urban_pothole.jpg",
+    "dimensions": "1280x1700",
+    "fileSizeBytes": 720454,
+    "fileSizeKb": 703.6,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0102.jpg",
+    "cvLatencyMs": 27.51,
+    "pipelineLatencyMs": 27.51,
+    "classification": "pothole",
+    "confidence": 0.9538,
+    "severity": "High",
+    "boundingBox": {
+      "x": 8.5,
+      "y": 2.0,
+      "width": 87.5,
+      "height": 90.0
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 37.6)",
+      "Localized road depression detected at (8.5%, 2.0%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000143",
+      "ward": "W08",
+      "wardName": "Bodakdev",
+      "zone": "North West",
+      "area": "Bodakdev",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Bodakdev Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Bodakdev (Ward W08, North West Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000143\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_NWZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "big_open_road_crater.jpg",
+    "dimensions": "400x300",
+    "fileSizeBytes": 106989,
+    "fileSizeKb": 104.5,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0103.jpg",
+    "cvLatencyMs": 2.29,
+    "pipelineLatencyMs": 3.85,
+    "classification": "pothole",
+    "confidence": 0.9538,
+    "severity": "High",
+    "boundingBox": {
+      "x": 3.1,
+      "y": 12.7,
+      "width": 90.0,
+      "height": 83.3
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 37.5)",
+      "Localized road depression detected at (3.1%, 12.7%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000144",
+      "ward": "W12",
+      "wardName": "Navrangpura",
+      "zone": "West",
+      "area": "Stadium",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Navrangpura Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Stadium (Ward W12, West Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000144\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_WestZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "deep_asphalt_broken_edges.jpg",
+    "dimensions": "1280x1707",
+    "fileSizeBytes": 1235704,
+    "fileSizeKb": 1206.7,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0104.jpg",
+    "cvLatencyMs": 29.7,
+    "pipelineLatencyMs": 29.61,
+    "classification": "pothole",
+    "confidence": 0.9646,
+    "severity": "Critical",
+    "boundingBox": {
+      "x": 3.1,
+      "y": 4.2,
+      "width": 90.0,
+      "height": 90.0
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 83.9)",
+      "Localized road depression detected at (3.1%, 4.2%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000145",
+      "ward": "W27",
+      "wardName": "Maninagar",
+      "zone": "South",
+      "area": "Maninagar",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Maninagar Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Maninagar (Ward W27, South Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000145\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_SouthZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "dilova_street_crater.jpg",
+    "dimensions": "1280x720",
+    "fileSizeBytes": 303038,
+    "fileSizeKb": 295.9,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0105.jpg",
+    "cvLatencyMs": 11.33,
+    "pipelineLatencyMs": 12.89,
+    "classification": "pothole",
+    "confidence": 0.9536,
+    "severity": "High",
+    "boundingBox": {
+      "x": 6.2,
+      "y": 16.8,
+      "width": 75.0,
+      "height": 79.2
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 36.7)",
+      "Localized road depression detected at (6.2%, 16.8%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000146",
+      "ward": "W08",
+      "wardName": "Bodakdev",
+      "zone": "North West",
+      "area": "Vastrapur",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Bodakdev Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Vastrapur (Ward W08, North West Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000146\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_NWZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "huntington_creek_asphalt_break.jpg",
+    "dimensions": "1280x853",
+    "fileSizeBytes": 709596,
+    "fileSizeKb": 693.0,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0106.jpg",
+    "cvLatencyMs": 13.67,
+    "pipelineLatencyMs": 15.53,
+    "classification": "pothole",
+    "confidence": 0.9656,
+    "severity": "Critical",
+    "boundingBox": {
+      "x": 3.1,
+      "y": 4.2,
+      "width": 90.0,
+      "height": 90.0
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 88.3)",
+      "Localized road depression detected at (3.1%, 4.2%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000147",
+      "ward": "W27",
+      "wardName": "Maninagar",
+      "zone": "South",
+      "area": "Kankaria",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Maninagar Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Kankaria (Ward W27, South Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000147\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_SouthZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "montreal_deep_cavity.jpg",
+    "dimensions": "1280x960",
+    "fileSizeBytes": 537386,
+    "fileSizeKb": 524.8,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0107.jpg",
+    "cvLatencyMs": 14.65,
+    "pipelineLatencyMs": 16.47,
+    "classification": "pothole",
+    "confidence": 0.9567,
+    "severity": "Critical",
+    "boundingBox": {
+      "x": 3.1,
+      "y": 6.0,
+      "width": 90.0,
+      "height": 90.0
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 50.0)",
+      "Localized road depression detected at (3.1%, 6.0%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000148",
+      "ward": "W12",
+      "wardName": "Navrangpura",
+      "zone": "West",
+      "area": "Navrangpura",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Navrangpura Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Navrangpura (Ward W12, West Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000148\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_WestZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  },
+  {
+    "imageName": "wet_weather_rural_pothole.jpg",
+    "dimensions": "1280x2633",
+    "fileSizeBytes": 1573738,
+    "fileSizeKb": 1536.9,
+    "format": "JPEG",
+    "neutralTestFilename": "IMG_SURVEILLANCE_0108.jpg",
+    "cvLatencyMs": 51.5,
+    "pipelineLatencyMs": 52.22,
+    "classification": "pothole",
+    "confidence": 0.961,
+    "severity": "Critical",
+    "boundingBox": {
+      "x": 3.1,
+      "y": 20.8,
+      "width": 90.0,
+      "height": 75.0
+    },
+    "detectedFeatures": [
+      "Severe asphalt surface cavity (fracture edge energy: 68.5)",
+      "Localized road depression detected at (3.1%, 20.8%)",
+      "Two-wheeler skid & rim hazard detected",
+      "Bituminous edge spalling and sub-base gravel erosion"
+    ],
+    "suggestedDepartment": "Roads & Buildings",
+    "filedTicket": {
+      "trackingId": "AMC-2026-000149",
+      "ward": "W12",
+      "wardName": "Navrangpura",
+      "zone": "West",
+      "area": "Law Garden",
+      "department": "Roads & Buildings",
+      "status": "Assigned",
+      "assignedTo": "Er. Rajesh Dave (Navrangpura Ward Cell)",
+      "expectedSlaAt": "2026-10-25T18:02:49"
+    },
+    "toolsInvoked": [
+      "analyze_image",
+      "lookup_ward_and_department",
+      "create_complaint_ticket",
+      "draft_social_media_post"
+    ],
+    "socialDraftText": "\ud83d\udea8 Urgent Civic Hazard Alert \u2014 Law Garden (Ward W12, West Zone)!\n\nReported issue: POTHOLE under Roads & Buildings.\n\ud83d\udccb Tracking ID: AMC-2026-000149\n\u26a1 SLA Resolution Window: 24 Hours\n\nRequesting immediate dispatch & inspection from @AhmedabadAMC @AMC_WestZone.\n\n#Ahmedabad #AMCAction #CivicPulseAI #AhmedabadRoads"
+  }
+]

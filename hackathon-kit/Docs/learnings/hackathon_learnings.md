@@ -116,3 +116,25 @@ This file records continuous learnings, platform anomalies (Kotlin/Wasm, Compose
   3. Never use tautological test assertions (`assert ... or True`) to mask uncopied seed templates in test fixtures.
 - **Agents Impacted**: `agent-engine-developer`, `quality-verifier`
 
+### [INSTINCT-009] Daylight Asphalt Road Texture Classification & Critical Section Concurrency
+- **Date / Phase**: Civic Complaint Agent / Vision Model Hardening & Concurrency Audit
+- **Trigger**: Testing real-world daylight pothole images with neutral camera filenames and running concurrent ticket filings.
+- **The Trap**: 
+  1. Naive downsampled color threshold heuristics (`avg_g > 95 and avg_r > 90` intended for organic waste/garbage) trigger false positives on ordinary sunlit road asphalt, where mean R and G naturally reach 110–165. Real road photos get misclassified as solid waste.
+  2. In database mock engines, generating sequential ticket IDs (`AMC-2026-XXXXXX`) across separate read and write lock acquisitions causes race conditions under concurrent requests where multiple threads read the same `max_id` and generate identical duplicate tracking numbers.
+- **The Defensive Pattern**:
+  1. In on-device computer vision classifiers, asphalt must be identified through **achromatic saturation filtering** (`HSV S < 60`, `|R-G| + |G-B| + |R-B| < 35`) combined with **Laplacian edge gradient energy** (`ImageFilter.FIND_EDGES`). Real road craters generate high edge fracture energy (`> 20`), whereas diffuse organic waste exhibits high color saturation without fracture structure.
+  2. Compute localized bounding boxes dynamically via peak edge/depression grid convolution (`_detect_cavity_hotspot`) rather than static percentage boxes.
+  3. Protect the entire read-generate-write sequence inside an atomic critical section using `with self._lock:` (`threading.RLock`).
+### [INSTINCT-012] Boundary-Safe Hotspot Clamping & Low-Light Road Hazard Disambiguation
+- **Date / Phase**: Civic Complaint Agent / Vision Edge Hardening & Quality Review
+- **Trigger**: Craters occurring at extreme image borders (x/y >= 95%) and road pothole images captured in dusk/night low illumination.
+- **The Trap**:
+  1. Clamping bounding boxes with `bw = 96.0 - bx` without shifting `bx` causes negative widths (`bw = -0.9`) when `bx > 96.0`, corrupting bounding box DTOs and breaking downstream UI renders.
+  2. Unconditionally applying localized cavity bounding boxes (`bbox = dynamic_bbox if has_real_image`) applies asphalt depression coordinates to overhead streetlight poles and garbage heaps.
+  3. Simple low-luminance checks (`mean_v < 50` or `RGB < 55`) misclassify dark/wet asphalt road surfaces as `streetlight`.
+- **The Defensive Pattern**:
+  1. Enforce mathematical boundary clamping: `if bx + bw > 96.0: bx = max(2.0, 96.0 - bw)` and `bw = round(min(bw, 98.0 - bx), 1)`. Guaranteed positive width/height (`width > 0`, `height > 0`) across 100% of grid permutations.
+  2. Gate dynamic bounding boxes strictly to matching hazard types: `bbox = dynamic_bbox if (dynamic_bbox and has_real_image and matched_issue == "pothole") else pattern["boundingBox"]`.
+  3. Disambiguate dark road asphalt from streetlights: check achromatic saturation (`mean_s < 45 and channel_diff < 25`) and fracture edges before declaring an unlit streetlight corridor.
+- **Agents Impacted**: `vision-engineer`, `quality-verifier`, `agent-engine-developer`

@@ -161,16 +161,29 @@ hck2skill-hackthon-24-oct-26/
 │
 ├── tests/                                             # Automated Deep Verification Suite
 │   ├── test_civic_agent.py                            # Unit tests: GPS ward lookup, seed reset, vision hints, status
-│   └── test_api_endpoints.py                          # Integration tests: File uploads, queries, concurrency
+│   ├── test_api_endpoints.py                          # Integration tests: File uploads, queries, concurrency
+│   ├── test_pothole_pipeline.py                       # Real pothole benchmark test suite (8 real road images)
+│   └── test_pothole_dataset/                          # Dedicated testing dataset of 8 real-world pothole images
+│       ├── asphalt_road_multiple_potholes.jpg
+│       ├── bengaluru_urban_pothole.jpg
+│       ├── big_open_road_crater.jpg
+│       ├── deep_asphalt_broken_edges.jpg
+│       ├── dilova_street_crater.jpg
+│       ├── huntington_creek_asphalt_break.jpg
+│       ├── montreal_deep_cavity.jpg
+│       └── wet_weather_rural_pothole.jpg
 │
 ├── scripts/
-│   └── generate_sample_assets.py                      # Synthetic hazard image generator with GPS EXIF & HUD
+│   ├── generate_sample_assets.py                      # Synthetic hazard image generator with GPS EXIF & HUD
+│   └── verify_pothole_dataset.py                      # Automated real-world pothole benchmark evaluation runner
 │
 ├── Docs/                                              # Hack2Skill Submission & Pitch Artifacts
 │   ├── problem_assessment_worksheet.md                # 10-Minute Problem Assessment Worksheet
 │   ├── architecture_spec.md                           # Full Technical Architecture & Systems Spec
 │   ├── pitch_deck_track01.md                          # 7-Slide Pitch Deck for Track 01
-│   └── demo_video_script.md                           # 2-Minute Judge Demo Presentation Script
+│   ├── demo_video_script.md                           # 2-Minute Judge Demo Presentation Script
+│   ├── pothole_testing_report.md                      # Comprehensive Real-World Pothole Testing & CV Hardening Report
+│   └── pothole_benchmark_results.json                 # Machine-readable per-image benchmark telemetry export
 │
 └── hackathon-kit/                                     # Engineering kit & blueprints
     └── Docs/learnings/hackathon_learnings.md          # Continuous Learnings & Instincts Registry
@@ -201,7 +214,7 @@ source .venv/bin/activate
 pytest -v
 ```
 
-### Test Coverage Summary (22 Test Cases):
+### Test Coverage Summary (32 Test Cases):
 - **`tests/test_civic_agent.py`** (11 tests):
   - `test_amc_database_seed_and_reset`: Rigorous verification of seed reset (without tautological shortcuts).
   - `test_ward_lookup_exact_and_fuzzy`: Exact matching, case insensitivity, normalized IDs (`Ward 27`, `Ward-12`).
@@ -226,8 +239,19 @@ pytest -v
   - `test_api_reset_seed`: Mock engine reset endpoint.
   - `test_api_404_handling`: Proper HTTP 404 on invalid tracking IDs.
   - `test_api_concurrent_filings`: Stress test verifying thread safety and unique ID generation under concurrent requests.
+- **`tests/test_pothole_pipeline.py`** (10 tests):
+  - `test_dataset_integrity_and_dimensions`: Validates 8 downloaded real-world pothole images (resolutions up to 1280x2633).
+  - `test_analyze_civic_image_pure_cv_on_all_pothole_images`: Tests zero-clue computer vision classification on daylight and wet road textures.
+  - `test_agent_process_complaint_pipeline_on_all_potholes`: Full autonomous ReAct agent pipeline (Ward routing, SLA, ticket creation, Twitter draft).
+  - `test_api_multipart_upload_real_potholes`: Multipart HTTP upload, disk persistence, and static serving of real pothole images.
+  - `test_corrupted_image_bytes_graceful_handling`: Verifies resilience when encountering corrupted or non-image payloads.
+  - `test_hazard_classification_pothole_vs_other_civic_issues`: Tests pure CV multi-hazard discrimination (pothole vs streetlight vs garbage vs waterlogging) under neutral filenames with zero hints.
+  - `test_bounding_box_edge_hotspot_boundary_safety`: Verifies zero negative/zero width/height bounding boxes on extreme right/bottom frame craters.
+  - `test_low_light_and_night_pothole_resilience`: Verifies dusk/night low-illumination dark asphalt roads classify as potholes (Roads & Buildings) rather than streetlights.
+  - `test_image_format_and_color_mode_diversity`: Verifies handling of Grayscale ('L'), RGBA, and WebP images.
+  - `test_api_multipart_upload_all_8_potholes`: Multipart upload across all 8 real-world pothole images via FastAPI.
 
-**Result: 22 Passed, 0 Failed (100% Pass Rate in ~0.34s).**
+**Result: 32 Passed, 0 Failed (100% Pass Rate in ~1.04s).**
 
 ---
 
@@ -235,9 +259,10 @@ pytest -v
 
 | Deliverable | File Link | Description |
 |---|---|---|
+| **Pothole Testing Report** | [pothole_testing_report.md](Docs/pothole_testing_report.md) | Comprehensive Real-World Pothole Testing & CV Hardening Benchmark |
 | **Problem Assessment** | [problem_assessment_worksheet.md](Docs/problem_assessment_worksheet.md) | 10-Minute Problem Assessment Worksheet |
 | **Architecture Spec** | [architecture_spec.md](Docs/architecture_spec.md) | Detailed Technical Architecture with Mermaid Flowcharts |
 | **Pitch Deck** | [pitch_deck_track01.md](Docs/pitch_deck_track01.md) | 7-Slide Pitch Deck tailored to Hack2Skill Rubric |
 | **Demo Video Script** | [demo_video_script.md](Docs/demo_video_script.md) | 2-Minute Spoken Walkthrough for Live Presentation |
-| **Learnings Registry** | [hackathon_learnings.md](hackathon-kit/Docs/learnings/hackathon_learnings.md) | Continuous Learnings & Concurrency Safeguards (`[INSTINCT-007]`, `[INSTINCT-008]`) |
+| **Learnings Registry** | [hackathon_learnings.md](hackathon-kit/Docs/learnings/hackathon_learnings.md) | Continuous Learnings & Concurrency Safeguards (`[INSTINCT-007]`, `[INSTINCT-008]`, `[INSTINCT-009]`) |
 

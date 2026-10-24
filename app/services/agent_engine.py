@@ -34,6 +34,17 @@ class CivicComplaintAgent:
         self.social = social_service or SocialEscalationService()
         self.video_scanner = video_scanner or VideoPotholeScannerService()
 
+    def analyze_civic_image(
+        self,
+        image_bytes: bytes,
+        filename: Optional[str] = None,
+        text_hint: Optional[str] = None
+    ) -> ImageAnalysisResult:
+        """
+        Analyzes a civic image directly through the agent's vision subsystem.
+        """
+        return self.vision.analyze_civic_image(image_bytes=image_bytes, filename=filename, text_hint=text_hint)
+
     def process_complaint_pipeline(
         self,
         image_bytes: bytes,

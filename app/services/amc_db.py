@@ -226,82 +226,83 @@ class AMCDatabaseService:
         lat: Optional[float] = None,
         lng: Optional[float] = None
     ) -> Complaint:
-        data = self._read_data()
-        complaints = data.get("complaints", [])
+        with self._lock:
+            data = self._read_data()
+            complaints = data.get("complaints", [])
 
-        # Determine Ward
-        ward: Optional[Ward] = None
-        if ward_id:
-            for w in self.get_wards():
-                if w.id == ward_id:
-                    ward = w
-                    break
-        if not ward and area and area.strip():
-            ward = self.find_ward_by_area(area.strip())
-        if not ward and lat is not None and lng is not None:
-            ward = self.find_ward_by_coordinates(lat, lng)
-        if not ward:
-            wards = self.get_wards()
-            ward = wards[0]
+            # Determine Ward
+            ward: Optional[Ward] = None
+            if ward_id:
+                for w in self.get_wards():
+                    if w.id == ward_id:
+                        ward = w
+                        break
+            if not ward and area and area.strip():
+                ward = self.find_ward_by_area(area.strip())
+            if not ward and lat is not None and lng is not None:
+                ward = self.find_ward_by_coordinates(lat, lng)
+            if not ward:
+                wards = self.get_wards()
+                ward = wards[0]
 
 
-        # Determine Department
-        department_name = self.lookup_department_for_issue(issue)
-        dept_meta = self.get_department_metadata(department_name)
-        sla_hours = dept_meta.slaHours if dept_meta else 24
-        lead_engineer = dept_meta.leadEngineer if dept_meta else "AMC Field Officer"
+            # Determine Department
+            department_name = self.lookup_department_for_issue(issue)
+            dept_meta = self.get_department_metadata(department_name)
+            sla_hours = dept_meta.slaHours if dept_meta else 24
+            lead_engineer = dept_meta.leadEngineer if dept_meta else "AMC Field Officer"
 
-        # Generate unique tracking ID: AMC-2026-XXXXXX
-        now = datetime.now()
-        timestamp_str = now.isoformat(timespec="seconds")
-        expected_sla = (now + timedelta(hours=sla_hours)).isoformat(timespec="seconds")
+            # Generate unique tracking ID: AMC-2026-XXXXXX
+            now = datetime.now()
+            timestamp_str = now.isoformat(timespec="seconds")
+            expected_sla = (now + timedelta(hours=sla_hours)).isoformat(timespec="seconds")
 
-        # Determine next ID index
-        existing_ids = [c.get("trackingId", "") for c in complaints]
-        max_num = 125
-        for tid in existing_ids:
-            if tid.startswith("AMC-2026-"):
-                try:
-                    num = int(tid.replace("AMC-2026-", ""))
-                    if num > max_num:
-                        max_num = num
-                except ValueError:
-                    pass
-        next_id = f"AMC-2026-{max_num + 1:06d}"
+            # Determine next ID index
+            existing_ids = [c.get("trackingId", "") for c in complaints]
+            max_num = 125
+            for tid in existing_ids:
+                if tid.startswith("AMC-2026-"):
+                    try:
+                        num = int(tid.replace("AMC-2026-", ""))
+                        if num > max_num:
+                            max_num = num
+                    except ValueError:
+                        pass
+            next_id = f"AMC-2026-{max_num + 1:06d}"
 
-        new_complaint = Complaint(
-            trackingId=next_id,
-            ward=ward.id,
-            wardName=ward.name,
-            zone=ward.zone,
-            area=area,
-            issue=issue,
-            department=department_name,
-            status=ComplaintStatus.ASSIGNED,
-            priority=priority,
-            description=description,
-            imageUrl=imageUrl or "/static/samples/pothole_cg_road.jpg",
-            filedAt=timestamp_str,
-            expectedSlaAt=expected_sla,
-            assignedTo=f"{lead_engineer} ({ward.name} Ward Cell)",
-            timeline=[
-                TimelineEvent(
-                    status=ComplaintStatus.SUBMITTED,
-                    timestamp=timestamp_str,
-                    note="Complaint received and verified via CivicPulse AI Agent."
-                ),
-                TimelineEvent(
-                    status=ComplaintStatus.ASSIGNED,
-                    timestamp=timestamp_str,
-                    note=f"Assigned to {department_name} ({ward.name} Ward). Work crew notified."
-                )
-            ]
-        )
+            new_complaint = Complaint(
+                trackingId=next_id,
+                ward=ward.id,
+                wardName=ward.name,
+                zone=ward.zone,
+                area=area,
+                issue=issue,
+                department=department_name,
+                status=ComplaintStatus.ASSIGNED,
+                priority=priority,
+                description=description,
+                imageUrl=imageUrl or "/static/samples/pothole_cg_road.jpg",
+                filedAt=timestamp_str,
+                expectedSlaAt=expected_sla,
+                assignedTo=f"{lead_engineer} ({ward.name} Ward Cell)",
+                timeline=[
+                    TimelineEvent(
+                        status=ComplaintStatus.SUBMITTED,
+                        timestamp=timestamp_str,
+                        note="Complaint received and verified via CivicPulse AI Agent."
+                    ),
+                    TimelineEvent(
+                        status=ComplaintStatus.ASSIGNED,
+                        timestamp=timestamp_str,
+                        note=f"Assigned to {department_name} ({ward.name} Ward). Work crew notified."
+                    )
+                ]
+            )
 
-        complaints.insert(0, new_complaint.model_dump())
-        data["complaints"] = complaints
-        self._write_data(data)
-        return new_complaint
+            complaints.insert(0, new_complaint.model_dump())
+            data["complaints"] = complaints
+            self._write_data(data)
+            return new_complaint
 
     def get_complaint_by_id(self, tracking_id: str) -> Optional[Complaint]:
         data = self._read_data()
@@ -316,42 +317,43 @@ class AMCDatabaseService:
         Simulates live lifecycle progress for dynamic judge demos.
         Transitions: Assigned -> In Progress -> Work Verified -> Resolved
         """
-        data = self._read_data()
-        complaints = data.get("complaints", [])
-        cleaned_id = tracking_id.strip().upper()
-        now_str = datetime.now().isoformat(timespec="seconds")
+        with self._lock:
+            data = self._read_data()
+            complaints = data.get("complaints", [])
+            cleaned_id = tracking_id.strip().upper()
+            now_str = datetime.now().isoformat(timespec="seconds")
 
-        for c in complaints:
-            if c.get("trackingId", "").upper() == cleaned_id:
-                curr_status = c.get("status")
-                next_status = None
-                note = ""
+            for c in complaints:
+                if c.get("trackingId", "").upper() == cleaned_id:
+                    curr_status = c.get("status")
+                    next_status = None
+                    note = ""
 
-                if curr_status == ComplaintStatus.ASSIGNED.value:
-                    next_status = ComplaintStatus.IN_PROGRESS.value
-                    note = "Field inspection team dispatched. Heavy equipment on site."
-                elif curr_status == ComplaintStatus.IN_PROGRESS.value:
-                    next_status = ComplaintStatus.WORK_VERIFIED.value
-                    note = "Physical repair/cleaning completed. Quality supervisor verification in progress."
-                elif curr_status == ComplaintStatus.WORK_VERIFIED.value:
-                    next_status = ComplaintStatus.RESOLVED.value
-                    note = "Quality audit passed. Issue officially resolved and closed."
-                    c["resolvedAt"] = now_str
-                else:
+                    if curr_status == ComplaintStatus.ASSIGNED.value:
+                        next_status = ComplaintStatus.IN_PROGRESS.value
+                        note = "Field inspection team dispatched. Heavy equipment on site."
+                    elif curr_status == ComplaintStatus.IN_PROGRESS.value:
+                        next_status = ComplaintStatus.WORK_VERIFIED.value
+                        note = "Physical repair/cleaning completed. Quality supervisor verification in progress."
+                    elif curr_status == ComplaintStatus.WORK_VERIFIED.value:
+                        next_status = ComplaintStatus.RESOLVED.value
+                        note = "Quality audit passed. Issue officially resolved and closed."
+                        c["resolvedAt"] = now_str
+                    else:
+                        return Complaint(**c)
+
+                    c["status"] = next_status
+                    timeline = c.get("timeline", [])
+                    timeline.append({
+                        "status": next_status,
+                        "timestamp": now_str,
+                        "note": note
+                    })
+                    c["timeline"] = timeline
+                    self._write_data(data)
                     return Complaint(**c)
 
-                c["status"] = next_status
-                timeline = c.get("timeline", [])
-                timeline.append({
-                    "status": next_status,
-                    "timestamp": now_str,
-                    "note": note
-                })
-                c["timeline"] = timeline
-                self._write_data(data)
-                return Complaint(**c)
-
-        return None
+            return None
 
     def list_complaints(self, limit: int = 50) -> List[Complaint]:
         data = self._read_data()
