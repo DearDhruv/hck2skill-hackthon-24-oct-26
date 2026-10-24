@@ -1,4 +1,6 @@
 import os
+import re
+import time
 from typing import Optional, List
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -98,16 +100,25 @@ async def file_complaint_upload(
     """
     image_bytes = None
     filename = "photo.jpg"
+    image_url = None
 
     if file and file.filename:
         filename = file.filename
         image_bytes = await file.read()
+        # Persist uploaded file to static/uploads
+        clean_name = os.path.basename(file.filename).replace(" ", "_")
+        unique_name = f"upload_{int(time.time())}_{clean_name}"
+        upload_path = os.path.join(static_dir, "uploads", unique_name)
+        with open(upload_path, "wb") as f:
+            f.write(image_bytes)
+        image_url = f"/static/uploads/{unique_name}"
     elif sampleName:
         filename = sampleName
         sample_path = os.path.join(static_dir, "samples", sampleName)
         if os.path.exists(sample_path):
             with open(sample_path, "rb") as f:
                 image_bytes = f.read()
+        image_url = f"/static/samples/{sampleName}"
 
     if not image_bytes:
         filename = "pothole_cg_road.jpg"
@@ -117,6 +128,7 @@ async def file_complaint_upload(
                 image_bytes = f.read()
         else:
             image_bytes = b"fake_synthetic_image_bytes"
+        image_url = f"/static/samples/{filename}"
 
     override_enum = None
     if issueType:
@@ -130,9 +142,11 @@ async def file_complaint_upload(
         filename=filename,
         user_area=area,
         user_notes=notes,
-        override_issue=override_enum
+        override_issue=override_enum,
+        image_url=image_url
     )
     return response
+
 
 @app.post("/api/agent/query", response_model=AgentResponse)
 def handle_agent_query(req: AgentQueryRequest):

@@ -40,7 +40,8 @@ class CivicComplaintAgent:
         filename: Optional[str] = None,
         user_area: Optional[str] = None,
         user_notes: Optional[str] = None,
-        override_issue: Optional[IssueType] = None
+        override_issue: Optional[IssueType] = None,
+        image_url: Optional[str] = None
     ) -> AgentResponse:
         """
         Full end-to-end agent workflow:
@@ -67,7 +68,7 @@ class CivicComplaintAgent:
         step_idx += 1
 
         t0 = time.time()
-        analysis: ImageAnalysisResult = self.vision.analyze_image_bytes(image_bytes, filename)
+        analysis: ImageAnalysisResult = self.vision.analyze_image_bytes(image_bytes, filename, text_hint=user_notes)
         if override_issue:
             analysis.issue = override_issue
         t_vision_ms = int((time.time() - t0) * 1000) + 12
@@ -76,7 +77,7 @@ class CivicComplaintAgent:
             step=1,
             name="analyze_image",
             description="Computer vision surface classification and hazard bounding-box extraction",
-            inputs={"filename": filename, "imageSizeBytes": len(image_bytes)},
+            inputs={"filename": filename, "imageSizeBytes": len(image_bytes), "hasTextHint": bool(user_notes)},
             output=analysis.model_dump(),
             latencyMs=t_vision_ms
         )
@@ -94,29 +95,52 @@ class CivicComplaintAgent:
         coords = self.vision.extract_exif_coordinates(image_bytes)
 
         # Step 2: Tool Call -> lookup_ward_and_department
-        lookup_query = user_area or "Navrangpura"
+        # Priority: If user provided a valid area, use it. Otherwise, use photo GPS coordinates.
+        clean_user_area = (user_area or "").strip()
+        matched_ward = None
+        resolved_via = "default"
+
+        if clean_user_area:
+            matched_ward = self.db.find_ward_by_area(clean_user_area)
+            if matched_ward:
+                resolved_via = "user_area"
+                lookup_query = clean_user_area
+
+        if not matched_ward and coords:
+            matched_ward = self.db.find_ward_by_coordinates(coords["lat"], coords["lng"])
+            resolved_via = "photo_gps"
+            lookup_query = f"{matched_ward.areas[0]} (Photo GPS: {coords['lat']}, {coords['lng']})"
+
+        if not matched_ward:
+            matched_ward = self.db.get_wards()[0]
+            lookup_query = clean_user_area or matched_ward.areas[0]
+            resolved_via = "default"
+
+        dept_name = self.db.lookup_department_for_issue(analysis.issue)
+        dept_meta = self.db.get_department_metadata(dept_name)
+
+        if resolved_via == "photo_gps":
+            step2_thought = f"Step 2/4: No matching area typed. Extracted EXIF GPS ({coords['lat']}, {coords['lng']}) from photo. Resolving jurisdiction to Ward {matched_ward.id} ({matched_ward.name}, {matched_ward.zone} Zone) and department '{dept_name}'..."
+        elif resolved_via == "user_area":
+            step2_thought = f"Step 2/4: Querying AMC Municipal Ward Registry for citizen area '{lookup_query}' and routing issue '{analysis.issue.value}' to department '{dept_name}'..."
+        else:
+            step2_thought = f"Step 2/4: Area not recognized. Routing to default AMC central ward {matched_ward.id} ({matched_ward.name}) and department '{dept_name}'..."
+
         reasoning_trace.append(ReasoningStep(
             stepIndex=step_idx,
             phase="THINKING",
-            thought=f"Step 2/4: Querying AMC Municipal Ward Registry for area '{lookup_query}' and routing issue '{analysis.issue.value}' to the designated municipal department..."
+            thought=step2_thought
         ))
         step_idx += 1
 
         t0 = time.time()
-        matched_ward = self.db.find_ward_by_area(lookup_query)
-        if not matched_ward and coords:
-            matched_ward = self.db.find_ward_by_coordinates(coords["lat"], coords["lng"])
-        if not matched_ward:
-            matched_ward = self.db.get_wards()[0]
-
-        dept_name = self.db.lookup_department_for_issue(analysis.issue)
-        dept_meta = self.db.get_department_metadata(dept_name)
         t_lookup_ms = int((time.time() - t0) * 1000) + 8
 
         lookup_output = {
             "wardId": matched_ward.id,
             "wardName": matched_ward.name,
             "zone": matched_ward.zone,
+            "resolvedVia": resolved_via,
             "wardOfficer": matched_ward.wardOfficer,
             "wardOffice": matched_ward.officeAddress,
             "department": dept_name,
@@ -128,16 +152,21 @@ class CivicComplaintAgent:
             step=2,
             name="lookup_ward_and_department",
             description="AMC GIS Ward & Municipal Department jurisdiction resolution",
-            inputs={"area": lookup_query, "issue": analysis.issue.value, "coordinates": coords},
+            inputs={"area": lookup_query, "issue": analysis.issue.value, "coordinates": coords, "resolvedVia": resolved_via},
             output=lookup_output,
             latencyMs=t_lookup_ms
         )
         tools_invoked.append("lookup_ward_and_department")
 
+        if resolved_via == "photo_gps":
+            confirmed_thought = f"Photo location verified at GPS ({coords['lat']}, {coords['lng']}). Jurisdiction confirmed: Ward {matched_ward.id} ({matched_ward.name}, {matched_ward.zone} Zone). Assigned Department: {dept_name} (SLA: {lookup_output['slaHours']}h)."
+        else:
+            confirmed_thought = f"Jurisdiction confirmed: Ward {matched_ward.id} ({matched_ward.name}, {matched_ward.zone} Zone). Assigned Department: {dept_name} (SLA: {lookup_output['slaHours']}h)."
+
         reasoning_trace.append(ReasoningStep(
             stepIndex=step_idx,
             phase="TOOL_EXECUTION",
-            thought=f"Jurisdiction confirmed: Ward {matched_ward.id} ({matched_ward.name}, {matched_ward.zone} Zone). Assigned Department: {dept_name} (SLA: {lookup_output['slaHours']}h).",
+            thought=confirmed_thought,
             toolCall=tool_log_lookup
         ))
         step_idx += 1
@@ -152,17 +181,27 @@ class CivicComplaintAgent:
 
         t0 = time.time()
         description = user_notes or analysis.description
+
+        # Determine permanent image URL
+        if image_url:
+            assigned_img_url = image_url
+        elif filename:
+            assigned_img_url = f"/static/samples/{filename}"
+        else:
+            assigned_img_url = "/static/samples/pothole_cg_road.jpg"
+
         complaint = self.db.create_complaint(
             area=lookup_query,
             issue=analysis.issue,
             description=description,
             ward_id=matched_ward.id,
-            imageUrl=f"/static/samples/{filename}" if filename else "/static/samples/pothole_cg_road.jpg",
+            imageUrl=assigned_img_url,
             priority=analysis.severity,
             lat=coords["lat"] if coords else (matched_ward.coordinates.lat if matched_ward.coordinates else None),
             lng=coords["lng"] if coords else (matched_ward.coordinates.lng if matched_ward.coordinates else None)
         )
         t_create_ms = int((time.time() - t0) * 1000) + 10
+
 
         tool_log_create = ToolCallLog(
             step=3,
@@ -246,10 +285,47 @@ class CivicComplaintAgent:
             toolsInvoked=tools_invoked
         )
 
+    def _extract_tracking_id(self, query: str) -> Optional[str]:
+        """
+        Extracts tracking ID from diverse conversational queries:
+        - "AMC-2026-000123"
+        - "AMC-123" / "AMC-000123"
+        - "what's the status of 123?" / "#123" / "ticket 123" / "complaint 123"
+        - standalone digits "000123" or "123"
+        """
+        query_upper = query.upper().strip()
+
+        # 1. Full standard ID: AMC-2026-XXXXXX
+        m_full = re.search(r"AMC-2026-(\d+)", query_upper)
+        if m_full:
+            num = int(m_full.group(1))
+            return f"AMC-2026-{num:06d}"
+
+        # 2. Short AMC format: AMC-123 or AMC-000123
+        m_short = re.search(r"AMC\s*[-_]?\s*(\d+)", query_upper)
+        if m_short:
+            num = int(m_short.group(1))
+            return f"AMC-2026-{num:06d}"
+
+        # 3. Keyword followed by number: ticket 123, complaint #123, status 123, #123
+        m_kw = re.search(r"(?:TICKET|COMPLAINT|STATUS OF|STATUS FOR|STATUS|#|ID)\s*#?\s*(\d+)", query_upper)
+        if m_kw:
+            num = int(m_kw.group(1))
+            return f"AMC-2026-{num:06d}"
+
+        # 4. Standalone 3-6 digit number in query: e.g. "what's the status of 123?"
+        m_num = re.search(r"\b(\d{3,6})\b", query)
+        if m_num:
+            num = int(m_num.group(1))
+            return f"AMC-2026-{num:06d}"
+
+        return None
+
     def process_status_query(self, query: str) -> AgentResponse:
         """
         Responds to status questions such as:
         - "what's the status?"
+        - "what's the status of 123?"
         - "check status of AMC-2026-000123"
         - "AMC-2026-000123"
         """
@@ -264,20 +340,25 @@ class CivicComplaintAgent:
         ))
         step_idx += 1
 
-        # Extract tracking ID
-        match = re.search(r"AMC-2026-\d+", query.upper())
-        tracking_id = match.group(0) if match else None
+        tracking_id = self._extract_tracking_id(query)
+        is_latest_fallback = False
 
         if not tracking_id:
             # Check latest complaint if none specified
             all_c = self.db.list_complaints(limit=1)
             if all_c:
                 tracking_id = all_c[0].trackingId
+                is_latest_fallback = True
+
+        if is_latest_fallback:
+            thought_text = f"No specific tracking ID in query. Looking up citizen's most recently filed municipal complaint ('{tracking_id}'). Calling tool 'fetch_complaint_status'..."
+        else:
+            thought_text = f"Query resolved to Tracking ID '{tracking_id or 'NOT_PROVIDED'}'. Calling tool 'fetch_complaint_status' to inspect municipal database..."
 
         reasoning_trace.append(ReasoningStep(
             stepIndex=step_idx,
             phase="THINKING",
-            thought=f"Query resolved to Tracking ID '{tracking_id or 'NOT_PROVIDED'}'. Calling tool 'fetch_complaint_status' to inspect municipal database..."
+            thought=thought_text
         ))
         step_idx += 1
 
@@ -289,9 +370,10 @@ class CivicComplaintAgent:
                 reasoningTrace=reasoning_trace,
                 complaint=None,
                 socialDraft=None,
-                message="⚠️ Could not find a tracking ID in your query. Please provide a valid ID like 'AMC-2026-000123' or file a new complaint.",
+                message="⚠️ No complaints currently found in AMC records. Please file a complaint first or provide a valid tracking number like 'AMC-2026-000123'.",
                 toolsInvoked=[]
             )
+
 
         t0 = time.time()
         complaint = self.db.get_complaint_by_id(tracking_id)

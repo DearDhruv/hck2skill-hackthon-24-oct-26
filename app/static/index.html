@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NagrikAMC · Autonomous Civic Complaint Agent</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (Offline-First Local Vendor with CDN Fallback) -->
+    <script src="/static/vendor/tailwind.js"></script>
+    <script>if (!window.tailwind) document.write('<script src="https://cdn.tailwindcss.com"><\/script>');</script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -32,9 +33,11 @@
         }
     </script>
     <link rel="stylesheet" href="/static/css/style.css">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons (Offline-First Local Vendor with CDN Fallback) -->
+    <script src="/static/vendor/lucide.min.js"></script>
+    <script>if (!window.lucide) document.write('<script src="https://unpkg.com/lucide@latest"><\/script>');</script>
 </head>
+
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
 
     <!-- Top Demo Mode & Status Banner -->

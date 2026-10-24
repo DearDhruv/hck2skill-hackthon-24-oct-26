@@ -54,3 +54,5 @@ class VideoFrameDetection(BaseModel):
     boundingBox: Optional[Dict[str, float]] = None
     coordinates: Optional[Dict[str, float]] = None
     autoFiledTrackingId: Optional[str] = None
+    frameImageUrl: Optional[str] = None
+

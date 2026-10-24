@@ -370,15 +370,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = `p-3.5 rounded-xl border ${det.hazardDetected ? 'border-rose-500/50 bg-rose-950/20' : 'border-slate-800 bg-slate-950/40'} space-y-2`;
 
+                const frameImgTag = det.frameImageUrl ? `
+                    <div class="relative overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+                        <img src="${det.frameImageUrl}" alt="Frame #${det.frameNumber}" class="w-full h-36 object-cover rounded-md" loading="lazy">
+                        <div class="absolute bottom-1 right-2 bg-slate-950/80 px-2 py-0.5 rounded text-[10px] font-mono text-slate-300">
+                            t = ${det.timestampSeconds}s
+                        </div>
+                    </div>
+                ` : '';
+
                 card.innerHTML = `
                     <div class="flex items-center justify-between text-xs font-mono">
                         <span class="font-bold ${det.hazardDetected ? 'text-rose-400' : 'text-slate-400'}">
                             Frame #${det.frameNumber} (t = ${det.timestampSeconds}s)
                         </span>
-                        <span class="text-[10px] px-2 py-0.5 rounded ${det.hazardDetected ? 'bg-rose-500/20 text-rose-300' : 'bg-slate-800 text-slate-400'}">
+                        <span class="text-[10px] px-2 py-0.5 rounded ${det.hazardDetected ? 'bg-rose-500/20 text-rose-300 font-semibold' : 'bg-slate-800 text-slate-400'}">
                             ${det.hazardDetected ? 'CRATER DETECTED' : 'CLEAR'}
                         </span>
                     </div>
+                    ${frameImgTag}
                     <div class="text-[11px] text-slate-300">
                         GPS: ${det.coordinates.lat}, ${det.coordinates.lng} (CG Road)
                     </div>
@@ -391,6 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 videoFramesGrid.appendChild(card);
             });
+
 
             videoSummary.classList.remove('hidden');
             videoSummaryText.innerText = `Corridor scan complete! Processed ${data.totalFramesSampled} video frames. Identified ${data.totalHazardsDetected} hazardous road craters and auto-filed official AMC tickets.`;

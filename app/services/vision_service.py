@@ -64,12 +64,19 @@ class VisionAnalysisService:
         }
     }
 
-    def analyze_image_bytes(self, image_bytes: bytes, filename: Optional[str] = None) -> ImageAnalysisResult:
+    def analyze_image_bytes(
+        self,
+        image_bytes: bytes,
+        filename: Optional[str] = None,
+        text_hint: Optional[str] = None
+    ) -> ImageAnalysisResult:
         """
         Analyzes image bytes, detects civic hazard, severity, and visual features.
-        Deterministic offline analysis.
+        Supports multimodal reasoning combining computer vision surface classification,
+        filename clues, and citizen text hints (INV-MOCK-01).
         """
         filename_lower = (filename or "").lower()
+        hint_lower = (text_hint or "").lower()
 
         matched_issue = None
         # 1a. Check exact issue key in filename (e.g. 'waterlogging', 'pothole', 'garbage', 'streetlight')
@@ -78,10 +85,17 @@ class VisionAnalysisService:
                 matched_issue = issue_key
                 break
 
-        # 1b. Check specific keywords if not matched by key
+        # 1b. Check specific keywords in filename
         if not matched_issue:
             for issue_key, data in self.ISSUE_PATTERNS.items():
                 if any(kw in filename_lower for kw in data["keywords"] if kw != "road"):
+                    matched_issue = issue_key
+                    break
+
+        # 1c. Multimodal reasoning: Check user text hint if filename is generic (e.g. IMG_1234.jpg)
+        if not matched_issue and hint_lower:
+            for issue_key, data in self.ISSUE_PATTERNS.items():
+                if any(kw in hint_lower for kw in data["keywords"] if kw != "road"):
                     matched_issue = issue_key
                     break
 
@@ -90,10 +104,9 @@ class VisionAnalysisService:
         try:
             with Image.open(io.BytesIO(image_bytes)) as img:
                 img_width, img_height = img.size
-                # If no filename clue, use simple color analysis
+                # If no filename or text clue, use color analysis
                 if not matched_issue:
                     img_rgb = img.convert("RGB")
-                    # Sample average color
                     stat_sample = img_rgb.resize((10, 10))
                     pixels = list(stat_sample.getdata())
                     avg_r = sum(p[0] for p in pixels) / len(pixels)
@@ -135,20 +148,33 @@ class VisionAnalysisService:
         )
 
     def extract_exif_coordinates(self, image_bytes: bytes) -> Optional[Dict[str, float]]:
-        """Extracts latitude and longitude from EXIF if available."""
+        """Extracts latitude and longitude from EXIF if available (supporting both IFD and legacy formats)."""
         try:
             with Image.open(io.BytesIO(image_bytes)) as img:
-                exif_data = img._getexif()
-                if not exif_data:
-                    return None
-
                 gps_info = {}
-                for tag_id, value in exif_data.items():
-                    tag_name = TAGS.get(tag_id, tag_id)
-                    if tag_name == "GPSInfo":
-                        for t, val in value.items():
-                            sub_tag = GPSTAGS.get(t, t)
-                            gps_info[sub_tag] = val
+
+                # 1. Try modern Pillow getexif().get_ifd(0x8825)
+                try:
+                    exif = img.getexif()
+                    if exif:
+                        gps_ifd = exif.get_ifd(0x8825)
+                        if gps_ifd:
+                            for tag_id, val in gps_ifd.items():
+                                sub_tag = GPSTAGS.get(tag_id, tag_id)
+                                gps_info[sub_tag] = val
+                except Exception:
+                    pass
+
+                # 2. Try legacy _getexif()
+                if not gps_info:
+                    exif_data = getattr(img, "_getexif", lambda: None)()
+                    if exif_data:
+                        for tag_id, value in exif_data.items():
+                            tag_name = TAGS.get(tag_id, tag_id)
+                            if tag_name == "GPSInfo" and isinstance(value, dict):
+                                for t, val in value.items():
+                                    sub_tag = GPSTAGS.get(t, t)
+                                    gps_info[sub_tag] = val
 
                 if "GPSLatitude" in gps_info and "GPSLongitude" in gps_info:
                     lat_dms = gps_info["GPSLatitude"]
@@ -161,7 +187,7 @@ class VisionAnalysisService:
                         minutes = float(dms[1])
                         seconds = float(dms[2])
                         dd = deg + (minutes / 60.0) + (seconds / 3600.0)
-                        if ref in ["S", "W"]:
+                        if str(ref).upper() in ["S", "W"]:
                             dd = -dd
                         return dd
 
@@ -171,3 +197,4 @@ class VisionAnalysisService:
         except Exception:
             pass
         return None
+

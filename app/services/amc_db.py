@@ -1,8 +1,10 @@
 import json
 import os
+import re
 import shutil
 import threading
 from datetime import datetime, timedelta
+
 from typing import List, Optional, Dict, Any
 from app.models.complaint import Complaint, Ward, IssueType, ComplaintStatus, TimelineEvent, DepartmentInfo
 
@@ -37,6 +39,22 @@ class AMCDatabaseService:
 
     def _ensure_initialized(self):
         with self._lock:
+            # Canonical seed file location in workspace
+            canonical_seed = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "data",
+                "amc_seed_database.json"
+            )
+
+            # Ensure seed file exists in this instance's data_dir
+            if not os.path.exists(self.seed_file):
+                os.makedirs(self.data_dir, exist_ok=True)
+                if os.path.exists(canonical_seed) and os.path.abspath(canonical_seed) != os.path.abspath(self.seed_file):
+                    shutil.copyfile(canonical_seed, self.seed_file)
+                else:
+                    self._create_fallback_data()
+
+            # Ensure active file exists
             if not os.path.exists(self.active_file):
                 if os.path.exists(self.seed_file):
                     shutil.copyfile(self.seed_file, self.active_file)
@@ -53,7 +71,8 @@ class AMCDatabaseService:
                     "areas": ["Navrangpura", "Stadium", "CG Road", "Law Garden", "Gujarat University"],
                     "officeAddress": "AMC West Zone Office, Usmanpura, Ahmedabad",
                     "wardOfficer": "Shri Arvind Trivedi",
-                    "contactPhone": "+91-79-2755-1201"
+                    "contactPhone": "+91-79-2755-1201",
+                    "coordinates": {"lat": 23.0375, "lng": 72.5583}
                 },
                 {
                     "id": "W27",
@@ -62,7 +81,8 @@ class AMCDatabaseService:
                     "areas": ["Maninagar", "Kankaria", "Jawahar Chowk", "Rambaug"],
                     "officeAddress": "AMC South Zone Office, Rambaug, Maninagar",
                     "wardOfficer": "Smt. Bhavna Solanki",
-                    "contactPhone": "+91-79-2546-4301"
+                    "contactPhone": "+91-79-2546-4301",
+                    "coordinates": {"lat": 22.9978, "lng": 72.6033}
                 }
             ],
             "departments": {
@@ -75,6 +95,8 @@ class AMCDatabaseService:
             "complaints": []
         }
         os.makedirs(self.data_dir, exist_ok=True)
+        with open(self.seed_file, "w", encoding="utf-8") as f:
+            json.dump(default_payload, f, indent=2)
         with open(self.active_file, "w", encoding="utf-8") as f:
             json.dump(default_payload, f, indent=2)
 
@@ -88,15 +110,22 @@ class AMCDatabaseService:
                     return json.load(f)
 
     def _write_data(self, data: Dict[str, Any]):
+        """Atomic write using temporary file to prevent partial file writes / corruption."""
         with self._lock:
-            with open(self.active_file, "w", encoding="utf-8") as f:
+            temp_file = self.active_file + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_file, self.active_file)
 
     def reset_to_seed_data(self) -> bool:
-        """Restores database to seed state for fresh judge demos."""
+        """Restores database to seed state for fresh judge demos (INV-MOCK-01)."""
         with self._lock:
             if os.path.exists(self.seed_file):
-                shutil.copyfile(self.seed_file, self.active_file)
+                temp_file = self.active_file + ".tmp"
+                shutil.copyfile(self.seed_file, temp_file)
+                os.replace(temp_file, self.active_file)
                 return True
             return False
 
@@ -122,26 +151,53 @@ class AMCDatabaseService:
     def find_ward_by_area(self, query: str) -> Optional[Ward]:
         """
         Fuzzy & exact area lookup across AMC ward registries.
-        Case-insensitive matching for area names (e.g. 'CG Road', 'kankaria', 'stadium').
+        Supports area names (e.g. 'CG Road', 'Kankaria'), ward names ('Navrangpura', 'Bodakdev'),
+        ward IDs ('W12', 'W27', 'Ward 27', 'Ward-12'), and zones ('South Zone', 'West Zone').
+        Returns None if no matching ward is found.
         """
         if not query:
             return None
         cleaned_query = query.strip().lower()
         wards = self.get_wards()
 
-        # 1. Exact or partial match in area lists
-        for ward in wards:
-            for area in ward.areas:
-                if cleaned_query in area.lower() or area.lower() in cleaned_query:
+        # 1. Match normalized ward ID (e.g. "w12", "w27", "ward 12", "ward-27", "ward 08")
+        id_numeric_match = re.search(r"(?:ward|w)?\s*[-_]?\s*(\d+)", cleaned_query)
+        if id_numeric_match:
+            num = int(id_numeric_match.group(1))
+            for ward in wards:
+                ward_num_match = re.search(r"\d+", ward.id)
+                if ward_num_match and int(ward_num_match.group(0)) == num:
                     return ward
 
-        # 2. Match ward name or ID directly
+        # 2. Exact match on ward name or ward ID
         for ward in wards:
-            if cleaned_query in ward.name.lower() or ward.id.lower() == cleaned_query:
+            if cleaned_query == ward.name.lower() or cleaned_query == ward.id.lower():
                 return ward
 
-        # Fallback to Navrangpura (W12 - West Zone) as central default if not found
-        return wards[0] if wards else None
+        # 3. Exact match in areas list
+        for ward in wards:
+            for area in ward.areas:
+                if cleaned_query == area.lower():
+                    return ward
+
+        # 4. Area substring / contains match
+        for ward in wards:
+            for area in ward.areas:
+                if area.lower() in cleaned_query or (len(cleaned_query) >= 3 and cleaned_query in area.lower()):
+                    return ward
+
+        # 5. Ward name substring match
+        for ward in wards:
+            if ward.name.lower() in cleaned_query or (len(cleaned_query) >= 4 and cleaned_query in ward.name.lower()):
+                return ward
+
+        # 6. Zone match
+        for ward in wards:
+            if ward.zone.lower() in cleaned_query:
+                return ward
+
+        return None
+
 
     def find_ward_by_coordinates(self, lat: float, lng: float) -> Ward:
         """Closest Euclidean distance to known ward centers."""
@@ -180,13 +236,14 @@ class AMCDatabaseService:
                 if w.id == ward_id:
                     ward = w
                     break
-        if not ward:
-            ward = self.find_ward_by_area(area)
+        if not ward and area and area.strip():
+            ward = self.find_ward_by_area(area.strip())
         if not ward and lat is not None and lng is not None:
             ward = self.find_ward_by_coordinates(lat, lng)
         if not ward:
             wards = self.get_wards()
             ward = wards[0]
+
 
         # Determine Department
         department_name = self.lookup_department_for_issue(issue)

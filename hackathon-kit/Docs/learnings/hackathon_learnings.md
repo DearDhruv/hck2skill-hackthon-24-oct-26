@@ -103,3 +103,16 @@ This file records continuous learnings, platform anomalies (Kotlin/Wasm, Compose
 - **The Trap**: Corrupted model files, missing native libraries, or unexpected prompts cause uncaught runtime exceptions or hang indefinitely, freezing the app.
 - **The Defensive Pattern**: Wrap inference in both `withTimeoutOrNull(4000L)` and `runCatching { ... }`, providing immediate fallback to deterministic heuristic analysis if anything fails.
 - **Agents Impacted**: `engine-data-integrator`, `quality-verifier`
+
+---
+
+### [INSTINCT-011] Precedence Shield in Multimodal Geo-Triage & Atomic Mock Stores
+- **Date / Phase**: Civic Complaint Agent / Geolocation & Mock Storage
+- **Trigger**: Resolving municipal jurisdiction when citizens upload photos with EXIF metadata without typing an area.
+- **The Trap**: Defaulting `user_area` to a fallback string (e.g. "Navrangpura") before inspecting photo GPS coordinates causes the fallback to unconditionally trigger, completely ignoring real photo EXIF coordinates. Furthermore, non-atomic writes to mock JSON files can corrupt state under rapid demo clicks.
+- **The Defensive Pattern**: 
+  1. Inspect `user_area` only if non-empty; if unprovided or unrecognized, fall back immediately to `extract_exif_coordinates(image_bytes)` before applying any municipal central default.
+  2. Implement atomic file writes via temporary files and `os.replace` to prevent corrupted database state.
+  3. Never use tautological test assertions (`assert ... or True`) to mask uncopied seed templates in test fixtures.
+- **Agents Impacted**: `agent-engine-developer`, `quality-verifier`
+

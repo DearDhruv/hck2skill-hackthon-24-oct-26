@@ -28,10 +28,11 @@ if ! python -c "import fastapi, uvicorn, pydantic, PIL" 2>/dev/null; then
 fi
 
 # 3. Ensure sample assets exist
-if [[ ! -f "app/static/samples/pothole_cg_road.jpg" ]]; then
-    echo "🖼️ Generating sample civic hazard images..."
+if [[ ! -f "app/static/samples/pothole_cg_road.jpg" || ! -f "app/static/samples/video/frame_1_t0s.jpg" ]]; then
+    echo "🖼️ Generating sample civic hazard images and road video frames..."
     python scripts/generate_sample_assets.py
 fi
+
 
 # 4. Launch FastAPI server
 PORT=8000
