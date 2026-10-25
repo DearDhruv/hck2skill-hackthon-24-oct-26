@@ -61,15 +61,30 @@ Welcome to **NagrikAMC** (also known as **CivicPulse AI**), an autonomous civic 
 
 ## 🚀 Live Demo Quick Start
 
-Launch the complete application with a single command:
-
+### Option A: Local Single-Command Launcher
 ```bash
-# 1. Run the one-command launcher (activates venv, installs deps, generates sample assets, starts server)
+# 1. Run local launcher (activates venv, installs deps, generates sample assets, starts server)
 ./run.sh
 
 # 2. Open in your browser:
 # Interactive Demo UI: http://localhost:8000
 # OpenAPI / Swagger:   http://localhost:8000/docs
+```
+
+### Option B: Public URL Single-Command Launcher (Judges & Remote Mobile Access)
+Launch the server and generate an instant, secure public HTTPS URL (via Cloudflare Tunnel / SSH reverse tunnel) in a single command:
+```bash
+# Run in foreground:
+./run_public.sh
+
+# OR run INDEFINITELY in the background (survives closing the terminal):
+./run_public.sh --daemon
+
+# Check active status and public URL:
+./run_public.sh --status
+
+# Stop background services:
+./run_public.sh --stop
 ```
 
 ### 1-Tap Demo Walkthrough (Judges Presentation in 60s):

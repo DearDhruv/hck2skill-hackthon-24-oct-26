@@ -149,4 +149,4 @@ In the **"Road Video Scanner"** tab, continuous surveillance footage is sampled 
 
 ---
 
-*NagrikAMC is ready for live judging. Run `./run.sh` to launch the demo.*
+*NagrikAMC is ready for live judging. Run `./run.sh` for local demo, or `./run_public.sh --daemon` for instant public HTTPS judging access.*

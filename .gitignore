@@ -28,3 +28,7 @@ __pycache__/
 app/data/amc_active_db.json
 app/static/uploads/*
 !app/static/uploads/.gitkeep
+.public_url
+.server.pid
+.tunnel.pid
+PUBLIC_URL.txt
